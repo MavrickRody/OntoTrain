@@ -151,14 +151,14 @@ class AgentMemory:
         
         return "\n".join(history_parts) if history_parts else "No recent history"
     
-    def get_all_insights(self) -> List[str]:
+    def get_all_insights(self) -> List[Dict[str, Any]]:
         """
         Get all learned insights.
         
         Returns:
-            List of insight strings
+            List of insight dictionaries with metadata
         """
-        return [entry['insight'] for entry in self.insights]
+        return self.insights
     
     def get_action_counts(self) -> Dict[str, int]:
         """

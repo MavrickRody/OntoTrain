@@ -440,7 +440,7 @@ Available actions: {', '.join(self.available_actions)}
         report += f"\n## All Insights ({len(insights)})\n"
         for i, insight in enumerate(insights[-10:], 1):  # Last 10 insights
             report += f"\n### Insight {i}\n"
-            report += f"- **Content**: {insight.get('content', 'N/A')}\n"
+            report += f"- **Content**: {insight.get('insight', 'N/A')}\n"
             report += f"- **Source**: {insight.get('source', 'N/A')}\n"
             report += f"- **Iteration**: {insight.get('iteration', 'N/A')}\n"
         
