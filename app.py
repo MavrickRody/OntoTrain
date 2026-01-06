@@ -23,7 +23,7 @@ from agent.visualizations import RDFVisualizer
 
 # PDF export support
 try:
-    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib.pagesizes import letter
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.units import inch
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
@@ -176,6 +176,9 @@ document.addEventListener('keydown', function(e) {
 
 class OntoTrainChatUI:
     """Interactive chat interface for RDF exploration."""
+    
+    # Configuration constants
+    MAX_INSIGHT_LENGTH = 500  # Maximum characters for insight text in PDF export
     
     def __init__(self):
         """Initialize the chat UI."""
@@ -1047,7 +1050,7 @@ Answer:"""
                     
                     story.append(Paragraph(f"<b>Insight #{i}</b>", styles['Heading3']))
                     story.append(Paragraph(f"<i>Source: {source}</i>", styles['Normal']))
-                    story.append(Paragraph(insight_text[:500], styles['Normal']))  # Limit length
+                    story.append(Paragraph(insight_text[:self.MAX_INSIGHT_LENGTH], styles['Normal']))  # Limit length for readability
                     story.append(Spacer(1, 0.2 * inch))
             
             # Build PDF
