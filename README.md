@@ -131,6 +131,7 @@ This will:
 3. Run the autonomous agent for up to 10 iterations
 4. Save insights back to the dataset
 5. Persist memory to `data/agent_memory.json`
+6. Generate comprehensive reports and visualizations
 
 ### Advanced Usage
 
@@ -147,11 +148,17 @@ python main.py --iterations 5
 # Enable verbose output
 python main.py --verbose
 
+# Set a specific exploration goal
+python main.py --goal "Find all classes and their hierarchies"
+
 # Custom memory file
 python main.py --memory data/custom_memory.json
 
 # Create sample dataset
 python main.py --create-sample-dataset
+
+# Combine options for advanced exploration
+python main.py --model mistral --goal "Analyze entity relationships" --iterations 15 --verbose
 ```
 
 ### Command-Line Options
@@ -162,8 +169,21 @@ python main.py --create-sample-dataset
 --memory PATH         Path to memory file (default: data/agent_memory.json)
 --iterations N        Max iterations (default: 10)
 --verbose            Enable verbose output
+--goal TEXT          Exploration goal for the agent
 --create-sample-dataset  Create sample RDF dataset and exit
 ```
+
+### Output Files
+
+After running the agent, you'll find these files in the `data/` directory:
+
+- `agent_report.md` - Comprehensive markdown report with statistics, findings, and insights
+- `graph_visualization.html` - Interactive HTML visualization of the graph
+- `visualization_data.json` - Structured visualization data for custom tools
+- `dataset_with_insights.json` - Graph exported in JSON-LD format
+- `dataset_with_insights.nt` - Graph exported in N-Triples format
+- `agent_memory.json` - Agent's memory and learning history
+- Original dataset file with added insight triples
 
 ## How It Works
 
@@ -171,26 +191,65 @@ python main.py --create-sample-dataset
 
 The agent follows a **Thought → Action → Observation → Learning** cycle:
 
-1. **Thought**: LLM generates reasoning about what to explore next
-2. **Action**: Agent selects an action (e.g., query SPARQL, list classes)
+1. **Thought**: LLM generates context-aware reasoning about what to explore next
+2. **Action**: Agent selects an action based on the current goal
 3. **Observation**: Action is executed, results are collected
-4. **Learning**: LLM generates insights, which are persisted as RDF triples
+4. **Learning**: LLM generates insights with confidence scores, persisted as RDF triples
 
 ### Available Actions
 
+**Basic Analysis:**
 - `inspect_statistics` - View graph statistics (triples, classes, properties)
 - `list_classes` - List all RDF classes in the graph
 - `list_properties` - List all RDF properties
-- `query_sparql` - Execute SPARQL queries
-- `discover_patterns` - Find common patterns in the graph
 - `summarize_graph` - Generate a human-readable summary
+
+**Advanced Exploration:**
+- `explore_entity` - Deep dive into specific entities with relationships
+- `find_connected_entities` - Traverse graph to find related entities
+- `find_clusters` - Identify groups of highly connected entities
+- `find_hierarchies` - Detect hierarchical relationships (subClassOf, etc.)
+
+**Querying:**
+- `query_sparql` - Execute predefined SPARQL queries
+- `custom_sparql_query` - Generate and execute custom SPARQL queries
+
+**Pattern Detection:**
+- `discover_patterns` - Find frequent predicates and usage patterns
+
+**Quality Assurance:**
+- `validate_graph` - Check for undefined classes, blank nodes, and issues
 
 ### Memory and Learning
 
 - **Short-term memory**: Recent thoughts, actions, observations
-- **Long-term memory**: Accumulated insights
-- **Action history**: Record of all actions taken
-- **Persistence**: Memory saved to JSON file between sessions
+- **Long-term memory**: Accumulated insights with confidence scores
+- **Context awareness**: Remembers key findings across iterations
+- **Action history**: Complete record of all actions taken
+- **Persistence**: Memory and insights saved between sessions
+
+### Advanced Features
+
+**Goal-Oriented Exploration:**
+- Set specific goals with `--goal` parameter
+- Agent focuses exploration on achieving the goal
+- Context builds incrementally across iterations
+
+**Confidence Scoring:**
+- Each insight receives a confidence score (0-1)
+- Based on data quality and observation richness
+- Persisted in RDF for transparency
+
+**Visualizations:**
+- HTML visualization report with graph structure
+- JSON export for use with D3.js, Cytoscape, etc.
+- Class hierarchy trees
+- Statistics charts (class distribution, predicate usage)
+
+**Performance Optimizations:**
+- SPARQL query result caching
+- Efficient graph traversal algorithms
+- Progressive loading for large datasets
 
 ## Example Output
 

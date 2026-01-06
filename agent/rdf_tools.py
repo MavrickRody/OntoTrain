@@ -23,6 +23,7 @@ class RDFTools:
         self.dataset_path = dataset_path
         self.graph = Graph()
         self.insights_namespace = Namespace("http://ontotrain.ai/insights/")
+        self._query_cache = {}  # Cache for SPARQL query results
         
         try:
             # Auto-detect format based on file extension
@@ -130,7 +131,7 @@ class RDFTools:
     
     def execute_sparql(self, query: str, limit: int = 10) -> List[Dict[str, str]]:
         """
-        Execute a SPARQL query.
+        Execute a SPARQL query with caching.
         
         Args:
             query: SPARQL query string
@@ -139,6 +140,13 @@ class RDFTools:
         Returns:
             List of result bindings
         """
+        # Create cache key from query
+        cache_key = f"{query}_{limit}"
+        
+        # Check cache first
+        if cache_key in self._query_cache:
+            return self._query_cache[cache_key]
+        
         try:
             if 'LIMIT' not in query.upper():
                 query = query.strip()
@@ -153,6 +161,9 @@ class RDFTools:
                     value = row[var]
                     binding[str(var)] = str(value) if value else ""
                 output.append(binding)
+            
+            # Cache the results
+            self._query_cache[cache_key] = output
             
             return output
         except Exception as e:

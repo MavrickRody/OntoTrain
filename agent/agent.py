@@ -9,6 +9,7 @@ import time
 from agent.llm import LocalLLM
 from agent.rdf_tools import RDFTools
 from agent.memory import AgentMemory
+from agent.visualizations import RDFVisualizer
 
 
 class AutonomousAgent:
@@ -53,6 +54,7 @@ class AutonomousAgent:
         
         self.rdf_tools = RDFTools(dataset_path=dataset_path)
         self.memory = AgentMemory(memory_file=memory_file)
+        self.visualizer = RDFVisualizer(self.rdf_tools.graph)
         
         self.available_actions = [
             'inspect_statistics',
@@ -379,6 +381,13 @@ Available actions: {', '.join(self.available_actions)}
         with open(report_path, 'w') as f:
             f.write(report)
         print(f"Saved comprehensive report to: {report_path}")
+        
+        # Generate visualizations
+        print("Generating visualizations...")
+        self.visualizer.export_visualization_data("data/visualization_data.json")
+        self.visualizer.generate_html_report("data/graph_visualization.html")
+        print("Saved visualization data to: data/visualization_data.json")
+        print("Saved HTML report to: data/graph_visualization.html")
         
         # Export graph in multiple formats
         self.rdf_tools.export_to_format("data/dataset_with_insights.json", "json-ld")
