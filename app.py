@@ -89,6 +89,12 @@ class OntoTrainChatUI:
             st.session_state.memory = None
         if 'current_dataset' not in st.session_state:
             st.session_state.current_dataset = None
+        if 'dataset_path' not in st.session_state:
+            st.session_state.dataset_path = None
+        if 'model_name' not in st.session_state:
+            st.session_state.model_name = self.default_model
+        if 'memory_file' not in st.session_state:
+            st.session_state.memory_file = self.memory_file
         if 'chat_history' not in st.session_state:
             st.session_state.chat_history = []
         if 'query_history' not in st.session_state:
@@ -233,6 +239,9 @@ class OntoTrainChatUI:
                 # Initialize RDF Tools
                 st.session_state.rdf_tools = RDFTools(dataset_path)
                 st.session_state.current_dataset = dataset_path
+                st.session_state.dataset_path = dataset_path
+                st.session_state.model_name = model_name
+                st.session_state.memory_file = self.memory_file
                 
                 # Initialize LLM
                 st.session_state.llm = LocalLLM(
