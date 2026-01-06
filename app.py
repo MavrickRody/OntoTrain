@@ -8,6 +8,7 @@ Provides a chat-based interface to interact with RDF data and agent insights.
 import streamlit as st
 import json
 import os
+import re
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 import plotly.graph_objects as go
@@ -336,7 +337,6 @@ class OntoTrainChatUI:
         # Extract SPARQL query if present
         if "```sparql" in query.lower():
             # Extract SPARQL from code block
-            import re
             match = re.search(r'```sparql\s*(.*?)\s*```', query, re.DOTALL | re.IGNORECASE)
             if match:
                 sparql_query = match.group(1).strip()
@@ -516,13 +516,21 @@ Answer:"""
             return response
         
         except Exception as e:
+            error_msg = str(e)
+            troubleshooting = ""
+            
+            if "connection" in error_msg.lower() or "refused" in error_msg.lower():
+                troubleshooting = "\n\n**Troubleshooting:**\n- Ensure Ollama is running: `ollama serve`\n- Check if the model is available: `ollama list`"
+            elif "model" in error_msg.lower():
+                troubleshooting = "\n\n**Troubleshooting:**\n- Pull the model: `ollama pull mistral`\n- Try a different model in the sidebar"
+            
             return f"💭 I can help you explore the RDF graph! Try asking about:\n\n" \
                    f"- Statistics and metrics\n" \
                    f"- Classes and properties\n" \
                    f"- Running SPARQL queries\n" \
                    f"- Finding patterns\n" \
                    f"- Validating the graph\n\n" \
-                   f"(LLM temporarily unavailable: {e})"
+                   f"**LLM Error:** {error_msg}{troubleshooting}"
     
     def run(self):
         """Run the Streamlit application."""

@@ -68,7 +68,9 @@ main() {
 
     # Get command
     COMMAND="${1:-agent}"
-    shift || true
+    if [ $# -gt 0 ]; then
+        shift
+    fi
 
     case "$COMMAND" in
         agent)
