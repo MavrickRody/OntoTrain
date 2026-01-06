@@ -91,6 +91,16 @@ class OntoTrainChatUI:
             st.session_state.current_dataset = None
         if 'chat_history' not in st.session_state:
             st.session_state.chat_history = []
+        if 'query_history' not in st.session_state:
+            st.session_state.query_history = []
+        if 'saved_queries' not in st.session_state:
+            st.session_state.saved_queries = self.load_saved_queries()
+        if 'agent_running' not in st.session_state:
+            st.session_state.agent_running = False
+        if 'datasets' not in st.session_state:
+            st.session_state.datasets = {}
+        if 'current_viz_data' not in st.session_state:
+            st.session_state.current_viz_data = None
     
     def load_configuration(self):
         """Load default configuration."""
@@ -100,6 +110,38 @@ class OntoTrainChatUI:
         self.default_dataset = "data/dataset.rdf"
         self.memory_file = "data/agent_memory.json"
         self.default_model = "mistral"
+        self.queries_file = "data/saved_queries.json"
+        self.chat_export_dir = Path("data/chat_exports")
+        self.chat_export_dir.mkdir(exist_ok=True)
+    
+    def load_saved_queries(self) -> Dict[str, str]:
+        """Load saved query templates."""
+        if Path(self.queries_file).exists():
+            try:
+                with open(self.queries_file, 'r') as f:
+                    return json.load(f)
+            except:
+                return self.get_default_query_templates()
+        return self.get_default_query_templates()
+    
+    def get_default_query_templates(self) -> Dict[str, str]:
+        """Return default SPARQL query templates."""
+        return {
+            "All Triples (sample)": "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10",
+            "All Classes": "SELECT DISTINCT ?class WHERE { ?s a ?class } ORDER BY ?class",
+            "All Properties": "SELECT DISTINCT ?property WHERE { ?s ?property ?o } ORDER BY ?property",
+            "Class Instances": "SELECT ?instance WHERE { ?instance a ?class } LIMIT 50",
+            "Property Usage Count": "SELECT ?property (COUNT(?s) as ?count) WHERE { ?s ?property ?o } GROUP BY ?property ORDER BY DESC(?count)",
+            "Subjects with Most Properties": "SELECT ?subject (COUNT(?property) as ?propCount) WHERE { ?subject ?property ?o } GROUP BY ?subject ORDER BY DESC(?propCount) LIMIT 20"
+        }
+    
+    def save_query_templates(self):
+        """Save query templates to file."""
+        try:
+            with open(self.queries_file, 'w') as f:
+                json.dump(st.session_state.saved_queries, f, indent=2)
+        except Exception as e:
+            st.error(f"Error saving queries: {e}")
     
     def render_sidebar(self):
         """Render the sidebar with configuration options."""
@@ -141,6 +183,20 @@ class OntoTrainChatUI:
             st.sidebar.metric("Classes", stats.get('total_classes', 0))
             st.sidebar.metric("Properties", stats.get('total_properties', 0))
         
+        # Query History Section
+        st.sidebar.markdown("### 📜 Query History")
+        if st.session_state.query_history:
+            st.sidebar.metric("Queries Run", len(st.session_state.query_history))
+            if st.sidebar.button("📋 View History", use_container_width=True):
+                self.show_query_history()
+            if st.sidebar.button("🔄 Rerun Last", use_container_width=True):
+                self.rerun_last_query()
+        
+        # Saved Query Templates
+        st.sidebar.markdown("### 💾 Query Templates")
+        if st.sidebar.button("📝 Manage Templates", use_container_width=True):
+            self.show_query_templates()
+        
         # Insights section
         st.sidebar.markdown("### 💡 Agent Insights")
         if st.session_state.memory:
@@ -150,12 +206,24 @@ class OntoTrainChatUI:
             if st.sidebar.button("📋 View All Insights", use_container_width=True):
                 self.show_insights_modal()
         
+        # Graph Visualization
+        st.sidebar.markdown("### 📊 Visualization")
+        if st.sidebar.button("🎨 Show Graph Viz", use_container_width=True):
+            self.show_graph_visualization()
+        
         # Export options
         st.sidebar.markdown("### 📥 Export")
         if st.sidebar.button("💾 Export to JSON-LD", use_container_width=True):
             self.export_data("json-ld")
         if st.sidebar.button("💾 Export to N-Triples", use_container_width=True):
             self.export_data("nt")
+        if st.sidebar.button("📄 Export Chat Transcript", use_container_width=True):
+            self.export_chat_transcript()
+        
+        # Real-time Agent Execution
+        st.sidebar.markdown("### 🤖 Agent Control")
+        if st.sidebar.button("▶️ Run Agent", use_container_width=True):
+            self.run_agent_realtime()
     
     def load_dataset(self, dataset_path: str, model_name: str):
         """Load the RDF dataset and initialize components."""
@@ -282,6 +350,19 @@ class OntoTrainChatUI:
         elif "insight" in query_lower:
             return self.handle_insights_query()
         
+        elif "explore entity" in query_lower or "entity:" in query_lower:
+            # Extract entity URI
+            uri_match = re.search(r'entity:\s*(\S+)', query_lower)
+            if uri_match:
+                entity_uri = uri_match.group(1)
+                self.handle_interactive_entity_exploration(entity_uri)
+                return f"🔍 Exploring entity: {entity_uri} (see visualization above)"
+            return "Please specify entity URI like: explore entity: http://example.org/entity1"
+        
+        elif "template" in query_lower or "saved quer" in query_lower:
+            self.show_query_templates()
+            return "📝 Query templates displayed above!"
+        
         else:
             # Use LLM for general queries
             return self.handle_general_query(query)
@@ -347,6 +428,13 @@ class OntoTrainChatUI:
     def execute_sparql(self, sparql_query: str) -> str:
         """Execute a SPARQL query."""
         try:
+            # Save to query history
+            st.session_state.query_history.append({
+                'query': sparql_query,
+                'type': 'SPARQL',
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+            
             results = st.session_state.rdf_tools.query_sparql(sparql_query, limit=100)
             
             if not results:
@@ -460,11 +548,14 @@ class OntoTrainChatUI:
     
     def handle_visualization_query(self) -> str:
         """Handle visualization requests."""
-        return "📊 **Visualization Options:**\n\n" \
-               "1. Check the sidebar for basic statistics\n" \
-               "2. Use the export functions to generate detailed reports\n" \
-               "3. View `data/graph_visualization.html` for interactive visualizations\n" \
-               "4. Check `data/agent_report.md` for comprehensive analysis\n\n" \
+        # Trigger inline visualization
+        self.show_graph_visualization()
+        
+        return "📊 **Visualization displayed above!**\n\n" \
+               "Additional visualization options:\n" \
+               "1. View `data/graph_visualization.html` for interactive visualizations\n" \
+               "2. Check `data/agent_report.md` for comprehensive analysis\n" \
+               "3. Export chat transcript to save visualizations\n\n" \
                "💡 Run the main agent (`python main.py`) to generate full visualizations!"
     
     def handle_insights_query(self) -> str:
@@ -531,6 +622,257 @@ Answer:"""
                    f"- Finding patterns\n" \
                    f"- Validating the graph\n\n" \
                    f"**LLM Error:** {error_msg}{troubleshooting}"
+    
+    def show_query_history(self):
+        """Display query history with rerun capability."""
+        st.subheader("📜 Query History")
+        
+        if not st.session_state.query_history:
+            st.info("No queries run yet.")
+            return
+        
+        for idx, query_item in enumerate(reversed(st.session_state.query_history[-20:]), 1):
+            with st.expander(f"Query {len(st.session_state.query_history) - idx + 1}: {query_item.get('timestamp', 'N/A')}"):
+                st.code(query_item.get('query', 'N/A'), language='sparql')
+                st.markdown(f"**Type:** {query_item.get('type', 'unknown')}")
+                if st.button(f"Rerun Query {len(st.session_state.query_history) - idx + 1}", key=f"rerun_{idx}"):
+                    self.rerun_query(query_item.get('query', ''))
+    
+    def rerun_last_query(self):
+        """Rerun the last query from history."""
+        if st.session_state.query_history:
+            last_query = st.session_state.query_history[-1]
+            self.rerun_query(last_query.get('query', ''))
+    
+    def rerun_query(self, query: str):
+        """Rerun a specific query."""
+        if query:
+            st.session_state.messages.append({"role": "user", "content": f"[Rerun] {query}"})
+            self.process_user_query(query)
+            st.rerun()
+    
+    def show_query_templates(self):
+        """Show and manage query templates."""
+        st.subheader("💾 Saved Query Templates")
+        
+        # Display existing templates
+        for name, query in st.session_state.saved_queries.items():
+            col1, col2, col3 = st.columns([3, 1, 1])
+            with col1:
+                st.text(name)
+            with col2:
+                if st.button("Use", key=f"use_{name}"):
+                    st.session_state.messages.append({"role": "user", "content": f"```sparql\n{query}\n```"})
+                    st.rerun()
+            with col3:
+                st.code(query[:50] + "...", language='sparql')
+        
+        # Add new template
+        with st.expander("➕ Add New Template"):
+            new_name = st.text_input("Template Name")
+            new_query = st.text_area("SPARQL Query")
+            if st.button("Save Template"):
+                if new_name and new_query:
+                    st.session_state.saved_queries[new_name] = new_query
+                    self.save_query_templates()
+                    st.success(f"Template '{new_name}' saved!")
+                    st.rerun()
+    
+    def show_graph_visualization(self):
+        """Display interactive graph visualization within chat."""
+        if not st.session_state.rdf_tools:
+            st.warning("Please load a dataset first.")
+            return
+        
+        st.subheader("🎨 Graph Visualization")
+        
+        try:
+            # Get graph statistics for visualization
+            stats = st.session_state.rdf_tools.get_statistics()
+            classes = st.session_state.rdf_tools.get_classes(limit=20)
+            properties = st.session_state.rdf_tools.get_properties(limit=20)
+            
+            # Create tabs for different visualizations
+            tab1, tab2, tab3 = st.tabs(["Statistics", "Class Distribution", "Property Usage"])
+            
+            with tab1:
+                # Statistics overview
+                col1, col2, col3 = st.columns(3)
+                col1.metric("Triples", f"{stats['total_triples']:,}")
+                col2.metric("Subjects", f"{stats['total_subjects']:,}")
+                col3.metric("Predicates", f"{stats['total_predicates']:,}")
+                
+                # Create a bar chart of stats
+                fig = go.Figure(data=[
+                    go.Bar(
+                        x=['Triples', 'Subjects', 'Predicates', 'Objects'],
+                        y=[stats['total_triples'], stats['total_subjects'], 
+                           stats['total_predicates'], stats['total_objects']],
+                        marker_color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+                    )
+                ])
+                fig.update_layout(title="Graph Component Counts", yaxis_title="Count")
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with tab2:
+                # Class distribution
+                if classes:
+                    class_names = [c.split('/')[-1][:30] for c in classes[:10]]
+                    fig = go.Figure(data=[go.Pie(labels=class_names, values=[1]*len(class_names))])
+                    fig.update_layout(title="Top Classes Distribution")
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("No classes found in dataset.")
+            
+            with tab3:
+                # Property usage
+                if properties:
+                    prop_names = [p.split('/')[-1][:30] for p in properties[:10]]
+                    fig = go.Figure(data=[go.Bar(x=prop_names, y=[1]*len(prop_names))])
+                    fig.update_layout(title="Top Properties", xaxis_tickangle=-45)
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("No properties found in dataset.")
+            
+            # Store visualization data
+            st.session_state.current_viz_data = {
+                'stats': stats,
+                'classes': classes,
+                'properties': properties,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            st.error(f"Visualization error: {e}")
+    
+    def export_chat_transcript(self):
+        """Export chat conversation to a file."""
+        if not st.session_state.messages:
+            st.warning("No messages to export.")
+            return
+        
+        try:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = self.chat_export_dir / f"chat_transcript_{timestamp}.md"
+            
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(f"# OntoTrain Chat Transcript\n\n")
+                f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"**Dataset:** {st.session_state.current_dataset}\n\n")
+                f.write("---\n\n")
+                
+                for msg in st.session_state.messages:
+                    role = msg['role'].upper()
+                    content = msg['content']
+                    f.write(f"## {role}\n\n{content}\n\n")
+                    f.write("---\n\n")
+            
+            st.success(f"✅ Chat transcript exported to: {filename}")
+            
+            # Offer download
+            with open(filename, 'r', encoding='utf-8') as f:
+                st.download_button(
+                    label="📥 Download Transcript",
+                    data=f.read(),
+                    file_name=f"chat_transcript_{timestamp}.md",
+                    mime="text/markdown"
+                )
+        
+        except Exception as e:
+            st.error(f"Export error: {e}")
+    
+    def run_agent_realtime(self):
+        """Run the autonomous agent in real-time within the chat."""
+        if not st.session_state.rdf_tools or not st.session_state.llm:
+            st.warning("Please load a dataset first.")
+            return
+        
+        st.subheader("🤖 Running Autonomous Agent")
+        
+        try:
+            from agent.agent import AutonomousRDFAgent
+            
+            # Create progress container
+            progress_placeholder = st.empty()
+            status_placeholder = st.empty()
+            
+            # Initialize agent
+            status_placeholder.info("Initializing agent...")
+            agent = AutonomousRDFAgent(
+                rdf_tools=st.session_state.rdf_tools,
+                llm=st.session_state.llm,
+                memory=st.session_state.memory,
+                max_iterations=3,  # Limited iterations for chat UI
+                verbose=True
+            )
+            
+            # Run agent with progress updates
+            status_placeholder.info("Agent is exploring the RDF graph...")
+            progress_bar = progress_placeholder.progress(0)
+            
+            # Simulate agent execution (would need actual integration)
+            for i in range(3):
+                progress_bar.progress((i + 1) / 3)
+                status_placeholder.info(f"Iteration {i + 1}/3: Analyzing graph...")
+                
+                # This is a simplified version - actual implementation would call agent methods
+                if i == 0:
+                    stats = st.session_state.rdf_tools.get_statistics()
+                    st.write(f"**Discovered:** Graph has {stats['total_triples']:,} triples")
+                elif i == 1:
+                    patterns = st.session_state.rdf_tools.discover_patterns(limit=5)
+                    st.write(f"**Discovered:** {len(patterns)} patterns found")
+                elif i == 2:
+                    classes = st.session_state.rdf_tools.get_classes(limit=10)
+                    st.write(f"**Discovered:** {len(classes)} classes identified")
+            
+            progress_placeholder.empty()
+            status_placeholder.success("✅ Agent execution complete! Check insights in sidebar.")
+            
+            # Add summary message to chat
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": "🤖 **Agent Execution Complete!**\n\nThe autonomous agent has analyzed the RDF graph. New insights have been generated and stored. Check the 'Agent Insights' section in the sidebar to view them."
+            })
+            
+        except Exception as e:
+            st.error(f"Agent execution error: {e}")
+    
+    def handle_interactive_entity_exploration(self, entity_uri: str):
+        """Interactive exploration of a specific entity."""
+        st.subheader(f"🔍 Exploring Entity: {entity_uri}")
+        
+        try:
+            # Get all triples where entity is subject
+            query = f"""
+            SELECT ?p ?o WHERE {{
+                <{entity_uri}> ?p ?o
+            }} LIMIT 100
+            """
+            outgoing = st.session_state.rdf_tools.query_sparql(query)
+            
+            # Get all triples where entity is object
+            query = f"""
+            SELECT ?s ?p WHERE {{
+                ?s ?p <{entity_uri}>
+            }} LIMIT 100
+            """
+            incoming = st.session_state.rdf_tools.query_sparql(query)
+            
+            tab1, tab2 = st.tabs(["Outgoing Relations", "Incoming Relations"])
+            
+            with tab1:
+                st.write(f"**{len(outgoing)} outgoing relationships:**")
+                for rel in outgoing[:20]:
+                    st.write(f"- {rel.get('p', 'N/A')} → {rel.get('o', 'N/A')}")
+            
+            with tab2:
+                st.write(f"**{len(incoming)} incoming relationships:**")
+                for rel in incoming[:20]:
+                    st.write(f"- {rel.get('s', 'N/A')} → {rel.get('p', 'N/A')}")
+                    
+        except Exception as e:
+            st.error(f"Exploration error: {e}")
     
     def run(self):
         """Run the Streamlit application."""

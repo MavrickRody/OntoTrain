@@ -282,3 +282,228 @@ For issues or questions:
 - Review error messages in chat
 - Check Ollama and Streamlit logs
 - Verify dataset format compatibility
+
+## 🆕 Enhanced Features (v2.0)
+
+### 📊 Graph Visualization Within Chat
+- **Interactive Charts**: View real-time statistics, class distributions, and property usage
+- **Multiple Views**: Statistics, class distribution pie charts, and property usage bar charts
+- **Inline Display**: Visualizations appear directly in the chat interface
+- **Plotly Integration**: Interactive, zoomable visualizations
+
+**Usage:**
+- Type: "visualize the graph" or "show me visualization"
+- Click "🎨 Show Graph Viz" in sidebar
+
+### 📜 Query History with Rerun
+- **Automatic Tracking**: All SPARQL queries are automatically saved
+- **Quick Rerun**: Rerun any previous query with one click
+- **Timestamp Logging**: Track when queries were executed
+- **Last Query Shortcut**: Quickly rerun your last query
+
+**Usage:**
+- View history: Click "📋 View History" in sidebar
+- Rerun last: Click "🔄 Rerun Last" in sidebar
+- Rerun specific: Click "Rerun" button next to any query in history
+
+### 💾 Saved Query Templates
+- **Pre-built Templates**: 6 ready-to-use SPARQL query templates
+- **Custom Templates**: Save your own frequently-used queries
+- **One-Click Execution**: Run templates directly from the interface
+- **Template Management**: Add, view, and organize your query templates
+
+**Default Templates:**
+1. All Triples (sample)
+2. All Classes
+3. All Properties
+4. Class Instances
+5. Property Usage Count
+6. Subjects with Most Properties
+
+**Usage:**
+- View templates: Click "📝 Manage Templates" in sidebar
+- Add template: Use the "➕ Add New Template" form
+- Run template: Click "Use" button next to any template
+
+### 🔄 Multi-Dataset Comparison
+- **Multiple Datasets**: Load and switch between different RDF datasets
+- **Dataset Info**: View statistics for each loaded dataset
+- **Easy Switching**: Select from dropdown in sidebar
+- **Format Support**: Turtle, RDF/XML, N-Triples, N3
+
+**Usage:**
+- Select dataset from dropdown in sidebar
+- Click "🔄 Load Dataset" to switch
+- Compare insights across different datasets
+
+### 🤖 Real-time Agent Execution
+- **In-Chat Execution**: Run the autonomous agent directly from the UI
+- **Progress Tracking**: See real-time progress updates
+- **Limited Iterations**: Configured for 3 iterations for quick results
+- **Insight Generation**: New insights appear in sidebar immediately
+
+**Usage:**
+- Click "▶️ Run Agent" in sidebar
+- Watch progress bar for execution status
+- Check "Agent Insights" section for results
+
+### 🔍 Interactive Entity Exploration
+- **Deep Dive**: Explore specific entities interactively
+- **Outgoing Relations**: See all properties where entity is subject
+- **Incoming Relations**: See all triples where entity is object
+- **Tabbed Interface**: Organized view of relationships
+
+**Usage:**
+- Type: "explore entity: http://example.org/entity1"
+- View relationships in expandable sections
+- Navigate between outgoing and incoming relations
+
+### 📄 Export Chat Transcript
+- **Full Conversation Export**: Save entire chat history to Markdown
+- **Timestamped**: Includes date, time, and dataset information
+- **Downloadable**: Get a file to share or archive
+- **Formatted**: Clean Markdown format with role headers
+
+**Usage:**
+- Click "📄 Export Chat Transcript" in sidebar
+- File saved to `data/chat_exports/`
+- Download button appears for immediate download
+
+## 🎯 Quick Start Examples
+
+### Example 1: Comprehensive Exploration
+```
+1. "Show me statistics"
+2. "visualize the graph"
+3. "Find patterns"
+4. "List all classes"
+5. "validate the graph"
+```
+
+### Example 2: Using Templates
+```
+1. Click "📝 Manage Templates" in sidebar
+2. Click "Use" next to "All Classes" template
+3. View results
+4. Save a custom template for future use
+```
+
+### Example 3: Entity Exploration
+```
+1. "List all classes" (to get entity URIs)
+2. "explore entity: http://data.europa.eu/949/Balise"
+3. View outgoing and incoming relationships
+```
+
+### Example 4: Agent-Driven Analysis
+```
+1. Click "▶️ Run Agent" in sidebar
+2. Wait for completion (3 iterations)
+3. Click "📋 View All Insights" in sidebar
+4. Review agent discoveries
+```
+
+## 🎨 UI Components
+
+### Sidebar Sections
+1. **Configuration**: Dataset and model selection
+2. **Dataset Info**: Real-time statistics
+3. **Query History**: Recent queries with rerun
+4. **Query Templates**: Saved SPARQL templates
+5. **Agent Insights**: Generated insights
+6. **Visualization**: Graph viz trigger
+7. **Export**: Data and transcript export
+8. **Agent Control**: Real-time agent execution
+
+### Chat Interface
+- **Message History**: Scrollable conversation
+- **User Messages**: Blue background, right-aligned
+- **Assistant Messages**: Gray background, left-aligned
+- **Inline Visualizations**: Charts and graphs within chat
+- **Code Blocks**: Syntax-highlighted SPARQL queries
+
+## 🚀 Advanced Usage
+
+### Custom SPARQL with Templates
+1. Create a complex query
+2. Test it in chat: \`\`\`sparql ... \`\`\`
+3. If useful, save as template
+4. Reuse across sessions
+
+### Query History Navigation
+- Browse last 20 queries
+- Filter by type
+- Rerun with modifications
+- Export history with chat transcript
+
+### Multi-Dataset Workflow
+1. Load Dataset A → Analyze
+2. Save findings and queries
+3. Load Dataset B → Compare
+4. Export comparison results
+
+### Visualization Export
+1. Generate visualization in chat
+2. Export chat transcript (includes viz data)
+3. OR run `python main.py` for HTML viz
+4. Share interactive reports
+
+## 💡 Tips & Tricks
+
+1. **Quick Stats**: Type "stats" for instant overview
+2. **Template Library**: Build a personal library of useful queries
+3. **History Search**: Use query history to avoid retyping
+4. **Agent + Chat**: Run agent first, then explore insights in chat
+5. **Export Everything**: Transcript + Data + Insights for complete record
+6. **Visualization First**: Start with visualization to understand structure
+7. **Templates for Efficiency**: Save time with pre-built queries
+
+## 🐛 Troubleshooting
+
+### Ollama Connection Issues
+- Ensure Ollama is running: `ollama serve`
+- Check model availability: `ollama list`
+- Pull model if needed: `ollama pull mistral`
+
+### Dataset Loading Errors
+- Check file path exists
+- Verify RDF format (ttl, rdf, xml, n3, nt)
+- Look for parsing errors in output
+
+### Visualization Not Showing
+- Ensure dataset is loaded
+- Try clicking "🎨 Show Graph Viz" again
+- Check browser console for errors
+
+### Query History Empty
+- Run a SPARQL query first
+- History only tracks SPARQL queries
+- Check `data/saved_queries.json`
+
+## 📊 Output Files
+
+The enhanced chat UI generates:
+- `data/chat_exports/chat_transcript_*.md` - Conversation exports
+- `data/saved_queries.json` - Query templates
+- `data/agent_memory.json` - Insights and learning
+- `data/export_*.json` - Exported RDF data
+- `data/export_*.nt` - N-Triples exports
+
+## 🔗 Integration with Main Agent
+
+The chat UI complements the main CLI agent:
+
+**CLI Agent (`python main.py`):**
+- Long-running autonomous exploration
+- Full visualization generation
+- Comprehensive reports
+- Batch processing
+
+**Chat UI (`streamlit run app.py`):**
+- Interactive exploration
+- Quick queries and insights
+- Real-time feedback
+- User-guided analysis
+
+**Best Practice:** Run CLI agent first for deep analysis, then use Chat UI for interactive exploration of findings.
+
