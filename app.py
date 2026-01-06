@@ -860,16 +860,18 @@ Answer:"""
                         result = st.session_state.rdf_tools.get_statistics()
                         iteration_results.append(f"**Iteration 1:** Analyzed graph statistics - {result['total_triples']:,} triples found")
                     elif i == 1:
-                        result = st.session_state.rdf_tools.discover_patterns(limit=5)
+                        result = st.session_state.rdf_tools.discover_patterns()
+                        # Limit to first 5 patterns for display
+                        result = result[:5] if len(result) > 5 else result
                         iteration_results.append(f"**Iteration 2:** Discovered {len(result)} patterns in the data")
                     else:
                         result = st.session_state.rdf_tools.get_classes(limit=10)
                         iteration_results.append(f"**Iteration 3:** Identified {len(result)} classes")
-                        # Add an insight
+                        # Add an insight (note: add_insight takes insight, source, iteration)
                         st.session_state.memory.add_insight(
                             f"Analyzed RDF graph with {len(result)} classes via chat UI",
-                            iteration=3,
-                            confidence=0.8
+                            source="chat_ui_agent",
+                            iteration=3
                         )
                 except Exception as e:
                     iteration_results.append(f"**Iteration {i+1}:** Error - {str(e)}")
