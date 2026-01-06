@@ -161,6 +161,31 @@ python main.py --create-sample-dataset
 python main.py --model mistral --goal "Analyze entity relationships" --iterations 15 --verbose
 ```
 
+### 🎨 Interactive Chat UI
+
+OntoTrain includes a **Streamlit-based Chat UI** for interactive exploration:
+
+```bash
+# Launch the chat interface
+streamlit run app.py
+```
+
+**Features:**
+- 💬 **Natural language queries**: Ask questions about your RDF data
+- 🔍 **SPARQL execution**: Run custom queries directly from chat
+- 📊 **Interactive visualizations**: Real-time graph statistics
+- 💡 **Insight viewer**: Browse agent-generated insights
+- 📥 **Export options**: Download data in multiple formats
+- 🤖 **LLM integration**: Get context-aware answers
+
+**Example queries:**
+- "Show me statistics"
+- "List all classes"
+- "Find patterns in the data"
+- "Validate the graph"
+
+See [CHAT_UI_README.md](CHAT_UI_README.md) for detailed documentation.
+
 ### Command-Line Options
 
 ```

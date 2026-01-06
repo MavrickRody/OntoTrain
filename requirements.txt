@@ -13,3 +13,7 @@ sentence-transformers==2.2.2
 
 # Utilities
 python-dotenv==1.0.0
+
+# Web UI and Visualization
+streamlit==1.29.0
+plotly==5.18.0

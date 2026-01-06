@@ -48,3 +48,7 @@ data/*.ttl.bak
 tmp/
 temp/
 .cache/
+
+# Streamlit
+.streamlit/
+!.streamlit/config.toml
