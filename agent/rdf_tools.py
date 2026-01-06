@@ -121,10 +121,7 @@ class RDFTools:
         try:
             if 'LIMIT' not in query.upper():
                 query = query.strip()
-                if query.endswith('}'):
-                    query = query[:-1] + f'}} LIMIT {limit}'
-                else:
-                    query += f' LIMIT {limit}'
+                query += f'\nLIMIT {limit}'
             
             results = self.graph.query(query)
             

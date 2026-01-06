@@ -33,9 +33,4 @@ setup(
     ],
     python_requires=">=3.10",
     install_requires=requirements,
-    entry_points={
-        "console_scripts": [
-            "ontotrain=main:main",
-        ],
-    },
 )

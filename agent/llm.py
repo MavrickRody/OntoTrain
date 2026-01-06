@@ -83,20 +83,32 @@ class LocalLLM:
         
         return response['choices'][0]['text'].strip()
     
-    def create_prompt(self, system: str, user: str) -> str:
+    def create_prompt(self, system: str, user: str, template: str = "mistral") -> str:
         """
         Create a formatted prompt for instruction-tuned models.
         
         Args:
             system: System instruction
             user: User query
+            template: Prompt template format ('mistral', 'llama2', or 'simple')
             
         Returns:
             Formatted prompt
         """
-        return f"""<s>[INST] {system}
+        if template == "mistral":
+            return f"""<s>[INST] {system}
 
 {user} [/INST]"""
+        elif template == "llama2":
+            return f"""<s>[INST] <<SYS>>
+{system}
+<</SYS>>
+
+{user} [/INST]"""
+        else:
+            return f"""{system}
+
+{user}"""
     
     def think(self, context: str, task: str) -> str:
         """
