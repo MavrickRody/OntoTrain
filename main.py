@@ -150,6 +150,13 @@ Pull a model: ollama pull mistral
         help='Create a sample RDF dataset and exit'
     )
     
+    parser.add_argument(
+        '--goal',
+        type=str,
+        default=None,
+        help='Exploration goal for the agent (e.g., "Find all person entities and their relationships")'
+    )
+    
     args = parser.parse_args()
     
     if args.create_sample_dataset:
@@ -167,6 +174,8 @@ Pull a model: ollama pull mistral
     print(f"Memory: {args.memory}")
     print(f"Max Iterations: {args.iterations}")
     print(f"Verbose: {args.verbose}")
+    if args.goal:
+        print(f"Goal: {args.goal}")
     print("=" * 60)
     
     if not check_ollama_available():
@@ -185,7 +194,8 @@ Pull a model: ollama pull mistral
             dataset_path=args.dataset,
             memory_file=args.memory,
             max_iterations=args.iterations,
-            verbose=args.verbose
+            verbose=args.verbose,
+            goal=args.goal
         )
         
         agent.run()

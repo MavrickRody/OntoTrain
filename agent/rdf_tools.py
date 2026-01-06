@@ -224,6 +224,259 @@ class RDFTools:
         
         return patterns
     
+    def explore_entity(self, entity_uri: str, max_depth: int = 2) -> Dict[str, Any]:
+        """
+        Explore all properties and relationships of a specific entity.
+        
+        Args:
+            entity_uri: URI of the entity to explore
+            max_depth: Maximum depth for relationship traversal
+            
+        Returns:
+            Dictionary containing entity information
+        """
+        entity = URIRef(entity_uri) if not isinstance(entity_uri, URIRef) else entity_uri
+        
+        result = {
+            'uri': str(entity),
+            'outgoing': [],
+            'incoming': [],
+            'types': []
+        }
+        
+        # Get types
+        for o in self.graph.objects(entity, RDF.type):
+            result['types'].append(str(o))
+        
+        # Get outgoing relationships
+        for p, o in self.graph.predicate_objects(entity):
+            result['outgoing'].append({
+                'predicate': str(p),
+                'object': str(o)
+            })
+        
+        # Get incoming relationships
+        for s, p in self.graph.subject_predicates(entity):
+            result['incoming'].append({
+                'subject': str(s),
+                'predicate': str(p)
+            })
+        
+        return result
+    
+    def find_connected_entities(self, entity_uri: str, max_hops: int = 2) -> List[str]:
+        """
+        Find entities connected to a given entity within max_hops.
+        
+        Args:
+            entity_uri: Starting entity URI
+            max_hops: Maximum number of hops to traverse
+            
+        Returns:
+            List of connected entity URIs
+        """
+        entity = URIRef(entity_uri) if not isinstance(entity_uri, URIRef) else entity_uri
+        visited = set()
+        current_level = {entity}
+        
+        for _ in range(max_hops):
+            next_level = set()
+            for ent in current_level:
+                if ent in visited:
+                    continue
+                visited.add(ent)
+                
+                # Add connected entities (both directions)
+                for o in self.graph.objects(ent):
+                    if isinstance(o, URIRef):
+                        next_level.add(o)
+                for s in self.graph.subjects(object=ent):
+                    if isinstance(s, URIRef):
+                        next_level.add(s)
+            
+            current_level = next_level
+        
+        return [str(e) for e in visited if e != entity]
+    
+    def extract_subgraph(self, entity_uris: List[str]) -> Graph:
+        """
+        Extract a subgraph containing specified entities and their connections.
+        
+        Args:
+            entity_uris: List of entity URIs to include
+            
+        Returns:
+            New Graph containing the subgraph
+        """
+        subgraph = Graph()
+        entities = [URIRef(uri) if not isinstance(uri, URIRef) else uri for uri in entity_uris]
+        entity_set = set(entities)
+        
+        for s, p, o in self.graph:
+            if s in entity_set or o in entity_set:
+                subgraph.add((s, p, o))
+        
+        return subgraph
+    
+    def find_entity_clusters(self, min_cluster_size: int = 3) -> List[Dict[str, Any]]:
+        """
+        Find clusters of highly connected entities.
+        
+        Args:
+            min_cluster_size: Minimum number of entities in a cluster
+            
+        Returns:
+            List of clusters with their entities
+        """
+        # Simple clustering based on shared predicates
+        predicate_groups = {}
+        
+        for s, p, o in self.graph:
+            p_str = str(p)
+            if p_str not in predicate_groups:
+                predicate_groups[p_str] = set()
+            if isinstance(s, URIRef):
+                predicate_groups[p_str].add(str(s))
+            if isinstance(o, URIRef):
+                predicate_groups[p_str].add(str(o))
+        
+        clusters = []
+        for pred, entities in predicate_groups.items():
+            if len(entities) >= min_cluster_size:
+                clusters.append({
+                    'predicate': pred,
+                    'size': len(entities),
+                    'entities': list(entities)[:10]  # Limit to first 10 for readability
+                })
+        
+        return sorted(clusters, key=lambda x: x['size'], reverse=True)[:10]
+    
+    def find_hierarchies(self) -> List[Dict[str, Any]]:
+        """
+        Identify hierarchical relationships in the graph.
+        
+        Returns:
+            List of hierarchical structures found
+        """
+        hierarchies = []
+        hierarchy_predicates = [
+            RDFS.subClassOf,
+            RDFS.subPropertyOf,
+            URIRef("http://www.w3.org/2004/02/skos/core#broader"),
+            URIRef("http://www.w3.org/2004/02/skos/core#narrower")
+        ]
+        
+        for pred in hierarchy_predicates:
+            hierarchy = {'predicate': str(pred), 'relationships': []}
+            for s, p, o in self.graph.triples((None, pred, None)):
+                hierarchy['relationships'].append({
+                    'child': str(s),
+                    'parent': str(o)
+                })
+            
+            if hierarchy['relationships']:
+                hierarchies.append(hierarchy)
+        
+        return hierarchies
+    
+    def validate_graph(self) -> Dict[str, Any]:
+        """
+        Validate the RDF graph for common issues.
+        
+        Returns:
+            Dictionary with validation results
+        """
+        issues = []
+        warnings = []
+        
+        # Check for blank nodes
+        blank_count = sum(1 for s in self.graph.subjects() if not isinstance(s, URIRef))
+        if blank_count > 0:
+            warnings.append(f"Found {blank_count} blank nodes")
+        
+        # Check for undefined classes
+        for s, p, o in self.graph.triples((None, RDF.type, None)):
+            if isinstance(o, URIRef):
+                # Check if class is defined
+                class_defined = any(self.graph.triples((o, RDF.type, OWL.Class))) or \
+                               any(self.graph.triples((o, RDF.type, RDFS.Class)))
+                if not class_defined and str(o) not in ['http://www.w3.org/2002/07/owl#Thing']:
+                    warnings.append(f"Potentially undefined class: {o}")
+        
+        return {
+            'valid': len(issues) == 0,
+            'issues': issues[:10],  # Limit to first 10
+            'warnings': warnings[:10],
+            'total_issues': len(issues),
+            'total_warnings': len(warnings)
+        }
+    
+    def export_to_format(self, output_path: str, format: str = 'json-ld') -> bool:
+        """
+        Export graph to various formats.
+        
+        Args:
+            output_path: Path to save the exported file
+            format: Export format (json-ld, n3, nt, xml, turtle)
+            
+        Returns:
+            True if successful
+        """
+        try:
+            self.graph.serialize(destination=output_path, format=format)
+            print(f"Exported graph to {output_path} in {format} format")
+            return True
+        except Exception as e:
+            print(f"Error exporting graph: {e}")
+            return False
+    
+    def generate_custom_sparql(self, description: str) -> str:
+        """
+        Generate a SPARQL query template based on description.
+        This is a simple template generator - could be enhanced with LLM.
+        
+        Args:
+            description: Description of what to query
+            
+        Returns:
+            SPARQL query string
+        """
+        # Simple template based on keywords
+        desc_lower = description.lower()
+        
+        if 'class' in desc_lower or 'type' in desc_lower:
+            return """
+            SELECT DISTINCT ?class (COUNT(?instance) as ?count) WHERE {
+                ?instance a ?class .
+            }
+            GROUP BY ?class
+            ORDER BY DESC(?count)
+            LIMIT 20
+            """
+        elif 'property' in desc_lower or 'predicate' in desc_lower:
+            return """
+            SELECT DISTINCT ?property (COUNT(*) as ?count) WHERE {
+                ?s ?property ?o .
+            }
+            GROUP BY ?property
+            ORDER BY DESC(?count)
+            LIMIT 20
+            """
+        elif 'connect' in desc_lower or 'relationship' in desc_lower:
+            return """
+            SELECT ?s ?p ?o WHERE {
+                ?s ?p ?o .
+            }
+            LIMIT 100
+            """
+        else:
+            return """
+            SELECT ?s ?p ?o WHERE {
+                ?s ?p ?o .
+            }
+            LIMIT 20
+            """
+    
     def add_insight_triple(self, subject: str, predicate: str, obj: str) -> None:
         """
         Add a new insight triple to the graph.
