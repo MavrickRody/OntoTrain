@@ -15,7 +15,7 @@ A fully local, open-source, autonomous RDF AI agent implemented in Python. This 
 
 - **Python 3.10+**
 - **rdflib** - RDF graph manipulation and SPARQL queries
-- **llama-cpp-python** - Local LLM inference
+- **ollama** - Local LLM inference via Ollama
 - **faiss-cpu** - Vector storage (for future extensions)
 - **sentence-transformers** - Text embeddings (for future extensions)
 
@@ -32,8 +32,6 @@ OntoTrain/
 ├── data/
 │   ├── dataset.ttl    # RDF dataset (Turtle format)
 │   └── agent_memory.json  # Agent memory persistence
-├── models/
-│   └── mistral-7b-instruct.Q4_K_M.gguf  # Local GGUF model
 ├── main.py            # Entry point
 ├── requirements.txt   # Dependencies
 └── README.md          # This file
@@ -61,29 +59,31 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**Note**: Installing `llama-cpp-python` may take a few minutes as it compiles C++ code.
+### 4. Install and Start Ollama
 
-### 4. Download a Local Model
-
-Download a GGUF model (recommended: Mistral 7B Instruct Q4):
+Download and install Ollama from [https://ollama.ai](https://ollama.ai)
 
 ```bash
-# Create models directory
-mkdir -p models
+# For macOS/Linux - download from https://ollama.ai
+# Or use package manager
 
-# Download using wget (Linux/Mac)
-wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf \
-  -O models/mistral-7b-instruct.Q4_K_M.gguf
+# Start Ollama service
+ollama serve
 
-# OR download using curl
-curl -L https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf \
-  -o models/mistral-7b-instruct.Q4_K_M.gguf
+# In another terminal, pull a model
+ollama pull mistral
+
+# Or pull other models:
+# ollama pull llama2
+# ollama pull codellama
 ```
 
-**Alternative Models**:
-- Any GGUF model from TheBloke's HuggingFace repositories
-- Llama 2 7B, Mistral 7B, or similar instruction-tuned models
-- Adjust `--model` parameter when running
+**Available Models**:
+- `mistral` - Mistral 7B (recommended)
+- `llama2` - Llama 2 7B
+- `codellama` - Code Llama
+- `phi` - Microsoft Phi-2
+- See full list: `ollama list` or [https://ollama.ai/library](https://ollama.ai/library)
 
 ### 5. Prepare Your RDF Dataset
 
@@ -107,11 +107,15 @@ cp /path/to/your/ontology.ttl data/dataset.ttl
 ### Basic Usage
 
 ```bash
+# Make sure Ollama is running first
+ollama serve  # In one terminal
+
+# In another terminal, run the agent
 python main.py
 ```
 
 This will:
-1. Load the model from `models/mistral-7b-instruct.Q4_K_M.gguf`
+1. Connect to Ollama with the `mistral` model
 2. Load the dataset from `data/dataset.ttl`
 3. Run the autonomous agent for up to 10 iterations
 4. Save insights back to the dataset
@@ -120,8 +124,11 @@ This will:
 ### Advanced Usage
 
 ```bash
-# Specify custom paths
-python main.py --model models/my-model.gguf --dataset data/my-data.ttl
+# Use a different model
+python main.py --model llama2
+
+# Specify custom dataset
+python main.py --model mistral --dataset data/my-data.ttl
 
 # Run for 5 iterations
 python main.py --iterations 5
@@ -139,7 +146,7 @@ python main.py --create-sample-dataset
 ### Command-Line Options
 
 ```
---model PATH          Path to GGUF model (default: models/mistral-7b-instruct.Q4_K_M.gguf)
+--model NAME         Name of Ollama model (default: mistral)
 --dataset PATH        Path to RDF dataset (default: data/dataset.ttl)
 --memory PATH         Path to memory file (default: data/agent_memory.json)
 --iterations N        Max iterations (default: 10)
@@ -180,8 +187,8 @@ The agent follows a **Thought → Action → Observation → Learning** cycle:
 ============================================================
 Initializing Autonomous RDF AI Agent
 ============================================================
-Loading model from: models/mistral-7b-instruct.Q4_K_M.gguf
-Model loaded successfully!
+Connecting to Ollama with model: mistral
+Model 'mistral' is available!
 Loaded RDF dataset from: data/dataset.ttl
 Total triples: 15
 
@@ -240,11 +247,9 @@ Edit `agent/llm.py` or modify initialization in `agent/agent.py`:
 
 ```python
 self.llm = LocalLLM(
-    model_path=model_path,
-    n_ctx=4096,        # Context window
-    n_threads=4,       # CPU threads
-    temperature=0.7,   # Sampling temperature
-    max_tokens=512     # Max generation length
+    model_name='mistral',  # Model name
+    temperature=0.7,       # Sampling temperature
+    max_tokens=512         # Max generation length
 )
 ```
 
@@ -258,19 +263,21 @@ self.insights_namespace = Namespace("http://your-namespace.com/insights/")
 
 ## Troubleshooting
 
-### Model Loading Issues
+### Ollama Issues
 
-**Problem**: `Model file not found`
-**Solution**: Ensure the model path is correct and the file exists
-
-**Problem**: `llama-cpp-python` compilation fails
-**Solution**: Install build tools:
+**Problem**: `Ollama is not available`
+**Solution**: Make sure Ollama is installed and running:
 ```bash
-# Ubuntu/Debian
-sudo apt-get install build-essential
+# Install from https://ollama.ai
+# Then run:
+ollama serve
+```
 
-# macOS
-xcode-select --install
+**Problem**: `Model not found`
+**Solution**: Pull the model first:
+```bash
+ollama pull mistral
+# Or: ollama pull llama2
 ```
 
 ### Dataset Issues
@@ -278,24 +285,20 @@ xcode-select --install
 **Problem**: `Error loading dataset`
 **Solution**: Ensure your RDF file is valid Turtle format. Validate at http://www.easyrdf.org/converter
 
-### Memory Issues
-
-**Problem**: Out of memory during model loading
-**Solution**: Use a smaller quantized model (Q3 or Q2 instead of Q4)
-
 ### Performance Issues
 
 **Problem**: Slow inference
 **Solution**: 
-- Increase `n_threads` parameter
-- Use GPU acceleration (requires llama-cpp-python with GPU support)
-- Use smaller model or higher quantization
+- Use a smaller model (e.g., `phi` instead of `mistral`)
+- Ensure Ollama has adequate resources
+- Check Ollama configuration for GPU settings
 
 ## Requirements
 
 - **Python**: 3.10 or higher
-- **RAM**: 8GB minimum (16GB recommended for 7B models)
-- **Disk**: 5GB for model + dataset
+- **Ollama**: Latest version from https://ollama.ai
+- **RAM**: 8GB minimum (16GB recommended for larger models)
+- **Disk**: Space for Ollama models (varies by model)
 - **OS**: Linux, macOS, or Windows with WSL
 
 ## License
@@ -327,7 +330,7 @@ If you use OntoTrain in your research, please cite:
 ## Acknowledgments
 
 - Built with [rdflib](https://github.com/RDFLib/rdflib)
-- LLM inference via [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
+- LLM inference via [Ollama](https://ollama.ai)
 - Inspired by autonomous agent research and semantic web technologies
 
 ## Support

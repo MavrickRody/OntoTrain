@@ -21,23 +21,24 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # 3. Install dependencies
 pip install -r requirements.txt
-
-# This may take 5-10 minutes due to llama-cpp-python compilation
 ```
 
-## Download Model
+## Install and Setup Ollama
 
 ```bash
-# Create models directory
-mkdir -p models
+# 1. Download and install Ollama from https://ollama.ai
+# For macOS/Linux, or use your package manager
 
-# Download Mistral 7B Instruct Q4 (recommended, ~4GB)
-wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf \
-  -O models/mistral-7b-instruct.Q4_K_M.gguf
+# 2. Start Ollama service (in one terminal)
+ollama serve
 
-# Or use curl if wget is not available
-curl -L https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf \
-  -o models/mistral-7b-instruct.Q4_K_M.gguf
+# 3. In another terminal, pull a model
+ollama pull mistral
+
+# Alternative models:
+# ollama pull llama2
+# ollama pull codellama
+# ollama pull phi
 ```
 
 ## Create Sample Dataset
@@ -52,7 +53,10 @@ This creates `data/dataset.ttl` with sample data.
 ## Run the Agent
 
 ```bash
-# Run with default settings (10 iterations)
+# Make sure Ollama is running first (in another terminal):
+ollama serve
+
+# Then run the agent
 python main.py
 
 # Or run with verbose output
@@ -60,13 +64,16 @@ python main.py --verbose
 
 # Or run for fewer iterations
 python main.py --iterations 5
+
+# Use a different model
+python main.py --model llama2
 ```
 
 ## What Happens?
 
 The agent will:
 
-1. **Load** the local LLM model (first run takes longer)
+1. **Connect** to Ollama with your chosen model
 2. **Parse** the RDF dataset
 3. **Execute** autonomous reasoning loop:
    - **Think**: Reason about what to explore
@@ -82,8 +89,8 @@ The agent will:
 ============================================================
 Initializing Autonomous RDF AI Agent
 ============================================================
-Loading model from: models/mistral-7b-instruct.Q4_K_M.gguf
-Model loaded successfully!
+Connecting to Ollama with model: mistral
+Model 'mistral' is available!
 Loaded RDF dataset from: data/dataset.ttl
 Total triples: 15
 
@@ -125,17 +132,17 @@ python main.py
 
 ## Troubleshooting
 
-**Model not loading?**
-- Check the file path matches exactly
-- Ensure the file downloaded completely (~4GB)
+**Ollama not running?**
+- Make sure Ollama is installed from https://ollama.ai
+- Start it with: `ollama serve`
 
-**Out of memory?**
-- Use a smaller model (Q3 or Q2 quantization)
-- Close other applications
+**Model not available?**
+- Pull the model first: `ollama pull mistral`
+- List available models: `ollama list`
 
 **Slow inference?**
-- Increase `n_threads` in `agent/agent.py`
-- Consider GPU acceleration (requires rebuilding llama-cpp-python with CUDA)
+- Use a smaller model: `python main.py --model phi`
+- Check Ollama has adequate resources
 
 ## Next Steps
 

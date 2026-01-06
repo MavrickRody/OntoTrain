@@ -16,7 +16,7 @@ class AutonomousAgent:
     
     def __init__(
         self,
-        model_path: str,
+        model_name: str,
         dataset_path: str,
         memory_file: str = "data/agent_memory.json",
         max_iterations: int = 10,
@@ -26,7 +26,7 @@ class AutonomousAgent:
         Initialize the autonomous agent.
         
         Args:
-            model_path: Path to the LLM model file
+            model_name: Name of the Ollama model (e.g., 'mistral', 'llama2')
             dataset_path: Path to the RDF dataset
             memory_file: Path to memory persistence file
             max_iterations: Maximum number of agent loop iterations
@@ -40,9 +40,7 @@ class AutonomousAgent:
         print("=" * 60)
         
         self.llm = LocalLLM(
-            model_path=model_path,
-            n_ctx=4096,
-            n_threads=4,
+            model_name=model_name,
             temperature=0.7,
             verbose=False
         )

@@ -12,41 +12,27 @@ from pathlib import Path
 from agent.agent import AutonomousAgent
 
 
-def check_files(model_path: str, dataset_path: str) -> bool:
+def check_ollama_available() -> bool:
     """
-    Check if required files exist.
+    Check if Ollama is available.
     
-    Args:
-        model_path: Path to the model file
-        dataset_path: Path to the dataset file
-        
     Returns:
-        True if all files exist, False otherwise
+        True if Ollama is accessible, False otherwise
     """
-    issues = []
-    
-    if not os.path.exists(model_path):
-        issues.append(f"Model file not found: {model_path}")
-        issues.append(f"  Please download a GGUF model (e.g., Mistral 7B Instruct Q4)")
-        issues.append(f"  Example: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF")
-    
-    if not os.path.exists(dataset_path):
-        issues.append(f"Dataset file not found: {dataset_path}")
-        issues.append(f"  Please provide an RDF dataset in Turtle format")
-        issues.append(f"  The agent will create this file if it doesn't exist")
-    
-    if issues:
+    try:
+        import ollama
+        ollama.list()
+        return True
+    except Exception as e:
         print("=" * 60)
-        print("WARNING: Missing files")
+        print("ERROR: Ollama is not available")
         print("=" * 60)
-        for issue in issues:
-            print(issue)
+        print(f"Error: {e}")
+        print("\nPlease make sure:")
+        print("1. Ollama is installed: https://ollama.ai")
+        print("2. Ollama service is running: 'ollama serve'")
         print("=" * 60)
-        
-        if not os.path.exists(model_path):
-            return False
-    
-    return True
+        return False
 
 
 def create_sample_dataset(dataset_path: str) -> None:
@@ -114,17 +100,21 @@ def main():
         epilog="""
 Example usage:
   python main.py
-  python main.py --model models/mistral-7b-instruct.Q4_K_M.gguf --dataset data/dataset.ttl
-  python main.py --iterations 5 --verbose
+  python main.py --model mistral --dataset data/dataset.ttl
+  python main.py --model llama2 --iterations 5 --verbose
   python main.py --create-sample-dataset
+  
+Available Ollama models: mistral, llama2, codellama, etc.
+List models: ollama list
+Pull a model: ollama pull mistral
         """
     )
     
     parser.add_argument(
         '--model',
         type=str,
-        default='models/mistral-7b-instruct.Q4_K_M.gguf',
-        help='Path to the GGUF model file (default: models/mistral-7b-instruct.Q4_K_M.gguf)'
+        default='mistral',
+        help='Name of the Ollama model to use (default: mistral)'
     )
     
     parser.add_argument(
@@ -179,15 +169,19 @@ Example usage:
     print(f"Verbose: {args.verbose}")
     print("=" * 60)
     
-    if not check_files(args.model, args.dataset):
-        print("\nCannot proceed without required files.")
+    if not check_ollama_available():
+        return 1
+    
+    if not os.path.exists(args.dataset):
+        print("\nDataset file not found!")
+        print(f"  File: {args.dataset}")
         print("\nTo create a sample dataset, run:")
         print(f"  python main.py --create-sample-dataset")
         return 1
     
     try:
         agent = AutonomousAgent(
-            model_path=args.model,
+            model_name=args.model,
             dataset_path=args.dataset,
             memory_file=args.memory,
             max_iterations=args.iterations,

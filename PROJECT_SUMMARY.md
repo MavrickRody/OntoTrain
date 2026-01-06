@@ -9,21 +9,21 @@ Successfully implemented a **fully local, open-source, autonomous RDF AI agent**
 ### Hard Constraints (Non-Negotiable)
 - ✅ **Python only** - All code written in Python 3.10+
 - ✅ **100% local** - No cloud APIs, no OpenAI, no HuggingFace API calls
-- ✅ **Open-source libraries** - rdflib, llama-cpp-python, faiss-cpu
+- ✅ **Open-source libraries** - rdflib, ollama, faiss-cpu
 - ✅ **RDF-native** - Full rdflib + SPARQL support
 - ✅ **Dataset size: MBs** - Designed for MB-sized RDF datasets
 - ✅ **Autonomous agent loop** - Agent decides what to query next
 
 ### Required Technology
 - ✅ rdflib - RDF graph manipulation and SPARQL queries
-- ✅ llama-cpp-python - Local GGUF model inference
+- ✅ ollama - Local LLM inference via Ollama
 - ✅ faiss-cpu - Vector storage (included for future extensions)
-- ✅ Local GGUF model support - Default: Mistral 7B Instruct Q4
+- ✅ Local model support - Default: Mistral via Ollama
 - ✅ No LangChain - Pure Python implementation
 
 ### Project Assumptions
 - ✅ RDF dataset path: `data/dataset.ttl`
-- ✅ Model path: `models/mistral-7b-instruct.Q4_K_M.gguf`
+- ✅ Model: Ollama model (e.g., mistral, llama2)
 - ✅ Python version: 3.10+
 
 ## 📁 Files Created (14 files)
@@ -126,10 +126,11 @@ python main.py --model models/my-model.gguf --dataset data/my-data.ttl
 ### Module Breakdown
 
 **agent/llm.py** (~200 lines)
-- LocalLLM class for GGUF model loading
+- LocalLLM class for Ollama integration
 - Prompt engineering for various tasks
 - Support for multiple prompt templates (Mistral, Llama2, Simple)
-- Configurable temperature, context size, and tokens
+- Configurable temperature and token limits
+- Automatic model pulling if not available
 
 **agent/rdf_tools.py** (~290 lines)
 - RDFTools class for graph manipulation
@@ -215,9 +216,10 @@ All requirements satisfied. The agent is:
 
 1. Clone the repository
 2. Install dependencies: `pip install -r requirements.txt`
-3. Download a GGUF model
-4. Create or provide RDF dataset
-5. Run: `python main.py`
+3. Install and setup Ollama from https://ollama.ai
+4. Pull a model: `ollama pull mistral`
+5. Create or provide RDF dataset
+6. Run: `python main.py`
 
 ## 🏆 Achievement Summary
 

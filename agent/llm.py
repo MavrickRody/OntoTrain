@@ -1,55 +1,57 @@
 """
 Local LLM loader and inference module.
 
-Uses llama-cpp-python for running GGUF models locally.
+Uses Ollama for running models locally via API.
 """
 
 import os
 from typing import Optional, Dict, Any
-from llama_cpp import Llama
+import ollama
 
 
 class LocalLLM:
-    """Local LLM wrapper using llama-cpp-python."""
+    """Local LLM wrapper using Ollama."""
     
     def __init__(
         self,
-        model_path: str,
-        n_ctx: int = 4096,
-        n_threads: int = 4,
-        n_gpu_layers: int = 0,
+        model_name: str,
         temperature: float = 0.7,
         max_tokens: int = 512,
-        verbose: bool = False
+        verbose: bool = False,
+        **kwargs
     ):
         """
-        Initialize the local LLM.
+        Initialize the local LLM with Ollama.
         
         Args:
-            model_path: Path to the GGUF model file
-            n_ctx: Context window size
-            n_threads: Number of CPU threads to use
-            n_gpu_layers: Number of layers to offload to GPU (0 for CPU only)
+            model_name: Name of the Ollama model (e.g., 'mistral', 'llama2', 'codellama')
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             verbose: Enable verbose output
+            **kwargs: Additional arguments (ignored for Ollama compatibility)
         """
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Model not found at: {model_path}")
-        
-        self.model_path = model_path
+        self.model_name = model_name
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.verbose = verbose
         
-        print(f"Loading model from: {model_path}")
-        self.llm = Llama(
-            model_path=model_path,
-            n_ctx=n_ctx,
-            n_threads=n_threads,
-            n_gpu_layers=n_gpu_layers,
-            verbose=verbose
-        )
-        print("Model loaded successfully!")
+        print(f"Connecting to Ollama with model: {model_name}")
+        
+        try:
+            models = ollama.list()
+            model_names = [m['name'] for m in models.get('models', [])]
+            
+            if not any(model_name in name for name in model_names):
+                print(f"Warning: Model '{model_name}' not found in Ollama.")
+                print(f"Available models: {', '.join(model_names)}")
+                print(f"Attempting to pull model '{model_name}'...")
+                ollama.pull(model_name)
+                print(f"Model '{model_name}' pulled successfully!")
+            else:
+                print(f"Model '{model_name}' is available!")
+        except Exception as e:
+            print(f"Warning: Could not verify Ollama model: {e}")
+            print("Make sure Ollama is running: 'ollama serve'")
     
     def generate(
         self,
@@ -65,7 +67,7 @@ class LocalLLM:
             prompt: Input prompt
             temperature: Override default temperature
             max_tokens: Override default max tokens
-            stop: List of stop sequences
+            stop: List of stop sequences (not used in Ollama)
             
         Returns:
             Generated text
@@ -73,15 +75,21 @@ class LocalLLM:
         temp = temperature if temperature is not None else self.temperature
         max_tok = max_tokens if max_tokens is not None else self.max_tokens
         
-        response = self.llm(
-            prompt,
-            temperature=temp,
-            max_tokens=max_tok,
-            stop=stop or [],
-            echo=False
-        )
-        
-        return response['choices'][0]['text'].strip()
+        try:
+            response = ollama.generate(
+                model=self.model_name,
+                prompt=prompt,
+                options={
+                    'temperature': temp,
+                    'num_predict': max_tok,
+                }
+            )
+            
+            return response['response'].strip()
+        except Exception as e:
+            print(f"Error generating response: {e}")
+            print("Make sure Ollama is running: 'ollama serve'")
+            return f"Error: {str(e)}"
     
     def create_prompt(self, system: str, user: str, template: str = "mistral") -> str:
         """
