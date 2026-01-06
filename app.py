@@ -74,8 +74,8 @@ class OntoTrainChatUI:
     
     def __init__(self):
         """Initialize the chat UI."""
-        self.initialize_session_state()
         self.load_configuration()
+        self.initialize_session_state()
     
     def initialize_session_state(self):
         """Initialize Streamlit session state variables."""
