@@ -234,12 +234,12 @@ class RDFTools:
             obj: Object URI or string
         """
         if not subject.startswith('http'):
-            subject = str(self.insights_namespace[self._make_safe_uri(subject)])
+            subject = self.insights_namespace[self._make_safe_uri(subject)]
         else:
             subject = URIRef(subject)
         
         if not predicate.startswith('http'):
-            predicate = str(self.insights_namespace[self._make_safe_uri(predicate)])
+            predicate = self.insights_namespace[self._make_safe_uri(predicate)]
         else:
             predicate = URIRef(predicate)
         
