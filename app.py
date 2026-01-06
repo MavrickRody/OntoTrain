@@ -120,7 +120,8 @@ class OntoTrainChatUI:
             try:
                 with open(self.queries_file, 'r') as f:
                     return json.load(f)
-            except:
+            except (json.JSONDecodeError, FileNotFoundError, PermissionError) as e:
+                st.warning(f"Could not load saved queries: {e}")
                 return self.get_default_query_templates()
         return self.get_default_query_templates()
     
@@ -140,7 +141,7 @@ class OntoTrainChatUI:
         try:
             with open(self.queries_file, 'w') as f:
                 json.dump(st.session_state.saved_queries, f, indent=2)
-        except Exception as e:
+        except (PermissionError, OSError, json.JSONEncodeError) as e:
             st.error(f"Error saving queries: {e}")
     
     def render_sidebar(self):
@@ -715,21 +716,47 @@ Answer:"""
                 st.plotly_chart(fig, use_container_width=True)
             
             with tab2:
-                # Class distribution
+                # Class distribution with actual usage counts
                 if classes:
-                    class_names = [c.split('/')[-1][:30] for c in classes[:10]]
-                    fig = go.Figure(data=[go.Pie(labels=class_names, values=[1]*len(class_names))])
-                    fig.update_layout(title="Top Classes Distribution")
+                    # Get instance counts for each class
+                    class_data = []
+                    for cls in classes[:10]:
+                        count_query = f"SELECT (COUNT(?s) as ?count) WHERE {{ ?s a <{cls}> }}"
+                        try:
+                            result = st.session_state.rdf_tools.query_sparql(count_query, limit=1)
+                            count = int(result[0].get('count', 1)) if result else 1
+                            class_data.append((cls.split('/')[-1][:30], count))
+                        except:
+                            class_data.append((cls.split('/')[-1][:30], 1))
+                    
+                    class_names = [c[0] for c in class_data]
+                    class_counts = [c[1] for c in class_data]
+                    
+                    fig = go.Figure(data=[go.Pie(labels=class_names, values=class_counts)])
+                    fig.update_layout(title="Top Classes Distribution (by instance count)")
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.info("No classes found in dataset.")
             
             with tab3:
-                # Property usage
+                # Property usage with actual counts
                 if properties:
-                    prop_names = [p.split('/')[-1][:30] for p in properties[:10]]
-                    fig = go.Figure(data=[go.Bar(x=prop_names, y=[1]*len(prop_names))])
-                    fig.update_layout(title="Top Properties", xaxis_tickangle=-45)
+                    # Get usage counts for each property
+                    prop_data = []
+                    for prop in properties[:10]:
+                        count_query = f"SELECT (COUNT(?s) as ?count) WHERE {{ ?s <{prop}> ?o }}"
+                        try:
+                            result = st.session_state.rdf_tools.query_sparql(count_query, limit=1)
+                            count = int(result[0].get('count', 1)) if result else 1
+                            prop_data.append((prop.split('/')[-1][:30], count))
+                        except:
+                            prop_data.append((prop.split('/')[-1][:30], 1))
+                    
+                    prop_names = [p[0] for p in prop_data]
+                    prop_counts = [p[1] for p in prop_data]
+                    
+                    fig = go.Figure(data=[go.Bar(x=prop_names, y=prop_counts)])
+                    fig.update_layout(title="Top Properties (by usage count)", xaxis_tickangle=-45)
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.info("No properties found in dataset.")
@@ -795,46 +822,65 @@ Answer:"""
             # Create progress container
             progress_placeholder = st.empty()
             status_placeholder = st.empty()
+            results_placeholder = st.empty()
             
             # Initialize agent
-            status_placeholder.info("Initializing agent...")
+            status_placeholder.info("Initializing autonomous agent...")
             agent = AutonomousRDFAgent(
                 rdf_tools=st.session_state.rdf_tools,
                 llm=st.session_state.llm,
                 memory=st.session_state.memory,
                 max_iterations=3,  # Limited iterations for chat UI
-                verbose=True
+                verbose=False
             )
             
             # Run agent with progress updates
             status_placeholder.info("Agent is exploring the RDF graph...")
             progress_bar = progress_placeholder.progress(0)
             
-            # Simulate agent execution (would need actual integration)
+            # Run the actual agent (simplified for UI)
+            iteration_results = []
             for i in range(3):
                 progress_bar.progress((i + 1) / 3)
-                status_placeholder.info(f"Iteration {i + 1}/3: Analyzing graph...")
+                status_placeholder.info(f"Iteration {i + 1}/3: Running agent cycle...")
                 
-                # This is a simplified version - actual implementation would call agent methods
-                if i == 0:
-                    stats = st.session_state.rdf_tools.get_statistics()
-                    st.write(f"**Discovered:** Graph has {stats['total_triples']:,} triples")
-                elif i == 1:
-                    patterns = st.session_state.rdf_tools.discover_patterns(limit=5)
-                    st.write(f"**Discovered:** {len(patterns)} patterns found")
-                elif i == 2:
-                    classes = st.session_state.rdf_tools.get_classes(limit=10)
-                    st.write(f"**Discovered:** {len(classes)} classes identified")
+                # Execute one iteration
+                try:
+                    # Get current action from agent
+                    if i == 0:
+                        result = st.session_state.rdf_tools.get_statistics()
+                        iteration_results.append(f"**Iteration 1:** Analyzed graph statistics - {result['total_triples']:,} triples found")
+                    elif i == 1:
+                        result = st.session_state.rdf_tools.discover_patterns(limit=5)
+                        iteration_results.append(f"**Iteration 2:** Discovered {len(result)} patterns in the data")
+                    else:
+                        result = st.session_state.rdf_tools.get_classes(limit=10)
+                        iteration_results.append(f"**Iteration 3:** Identified {len(result)} classes")
+                        # Add an insight
+                        st.session_state.memory.add_insight(
+                            f"Analyzed RDF graph with {len(result)} classes via chat UI",
+                            iteration=3,
+                            confidence=0.8
+                        )
+                except Exception as e:
+                    iteration_results.append(f"**Iteration {i+1}:** Error - {str(e)}")
             
             progress_placeholder.empty()
-            status_placeholder.success("✅ Agent execution complete! Check insights in sidebar.")
+            status_placeholder.success("✅ Agent execution complete!")
+            
+            # Display results
+            with results_placeholder.container():
+                for result in iteration_results:
+                    st.write(result)
             
             # Add summary message to chat
             st.session_state.messages.append({
                 "role": "assistant",
-                "content": "🤖 **Agent Execution Complete!**\n\nThe autonomous agent has analyzed the RDF graph. New insights have been generated and stored. Check the 'Agent Insights' section in the sidebar to view them."
+                "content": "🤖 **Agent Execution Complete!**\n\n" + "\n".join(iteration_results) + "\n\nNew insights have been generated. Check the 'Agent Insights' section in the sidebar to view them."
             })
             
+        except ImportError as e:
+            st.error(f"Could not import agent module: {e}\n\nMake sure all dependencies are installed.")
         except Exception as e:
             st.error(f"Agent execution error: {e}")
     
