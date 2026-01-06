@@ -170,7 +170,7 @@ OntoTrain includes a **Streamlit-based Chat UI** for interactive exploration:
 streamlit run app.py
 ```
 
-**Features:**
+**Core Features:**
 - 💬 **Natural language queries**: Ask questions about your RDF data
 - 🔍 **SPARQL execution**: Run custom queries directly from chat
 - 📊 **Interactive visualizations**: Real-time graph statistics
@@ -178,13 +178,19 @@ streamlit run app.py
 - 📥 **Export options**: Download data in multiple formats
 - 🤖 **LLM integration**: Get context-aware answers
 
+**✨ Quick Wins Features (NEW):**
+- 🎨 **Dark/Light Theme**: Toggle between themes for comfortable viewing
+- ⌨️ **Keyboard Shortcuts**: Boost productivity with Ctrl+K, Ctrl+Enter, and Ctrl+/
+- 🔍 **Search & Filter Insights**: Quickly find specific insights with search and filter
+- 📕 **PDF Report Export**: Generate professional PDF reports of your analysis
+
 **Example queries:**
 - "Show me statistics"
 - "List all classes"
 - "Find patterns in the data"
 - "Validate the graph"
 
-See [CHAT_UI_README.md](CHAT_UI_README.md) for detailed documentation.
+See [CHAT_UI_README.md](CHAT_UI_README.md) for core UI documentation and [QUICK_WINS_FEATURES.md](QUICK_WINS_FEATURES.md) for detailed Quick Wins guide.
 
 ### Command-Line Options
 

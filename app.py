@@ -14,11 +14,23 @@ from typing import Optional, Dict, Any, List
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
+from io import BytesIO
 
 from agent.rdf_tools import RDFTools
 from agent.llm import LocalLLM
 from agent.memory import AgentMemory
 from agent.visualizations import RDFVisualizer
+
+# PDF export support
+try:
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
+    from reportlab.lib import colors
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
 
 
 # Page configuration
@@ -29,43 +41,136 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Initialize theme in session state
+if 'theme' not in st.session_state:
+    st.session_state.theme = 'light'
+
+# Custom CSS with theme support
+def get_theme_css(theme='light'):
+    """Get CSS styles based on current theme."""
+    if theme == 'dark':
+        return """
+        <style>
+            .main-header {
+                font-size: 2.5rem;
+                font-weight: bold;
+                color: #6495ed;
+                text-align: center;
+                padding: 1rem;
+            }
+            .stat-box {
+                background-color: #2b2b2b;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin: 0.5rem 0;
+                color: #e0e0e0;
+            }
+            .insight-box {
+                background-color: #1a3a52;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin: 0.5rem 0;
+                border-left: 4px solid #6495ed;
+                color: #e0e0e0;
+            }
+            .chat-message {
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin: 0.5rem 0;
+            }
+            .user-message {
+                background-color: #1e3d59;
+                margin-left: 2rem;
+                color: #e0e0e0;
+            }
+            .assistant-message {
+                background-color: #2b2b2b;
+                margin-right: 2rem;
+                color: #e0e0e0;
+            }
+            .stMarkdown {
+                color: #e0e0e0;
+            }
+        </style>
+        """
+    else:  # light theme
+        return """
+        <style>
+            .main-header {
+                font-size: 2.5rem;
+                font-weight: bold;
+                color: #1f77b4;
+                text-align: center;
+                padding: 1rem;
+            }
+            .stat-box {
+                background-color: #f0f2f6;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin: 0.5rem 0;
+            }
+            .insight-box {
+                background-color: #e8f4f8;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin: 0.5rem 0;
+                border-left: 4px solid #1f77b4;
+            }
+            .chat-message {
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin: 0.5rem 0;
+            }
+            .user-message {
+                background-color: #e3f2fd;
+                margin-left: 2rem;
+            }
+            .assistant-message {
+                background-color: #f5f5f5;
+                margin-right: 2rem;
+            }
+        </style>
+        """
+
+# Apply theme CSS
+st.markdown(get_theme_css(st.session_state.theme), unsafe_allow_html=True)
+
+# Keyboard shortcuts CSS and JavaScript
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
-        padding: 1rem;
-    }
-    .stat-box {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
-    }
-    .insight-box {
-        background-color: #e8f4f8;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
-        border-left: 4px solid #1f77b4;
-    }
-    .chat-message {
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
-    }
-    .user-message {
-        background-color: #e3f2fd;
-        margin-left: 2rem;
-    }
-    .assistant-message {
-        background-color: #f5f5f5;
-        margin-right: 2rem;
+    .keyboard-hint {
+        font-size: 0.8rem;
+        color: #888;
+        font-style: italic;
     }
 </style>
+<script>
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + K: Focus on search/query input
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        const input = document.querySelector('textarea[aria-label="Enter your query"]');
+        if (input) input.focus();
+    }
+    // Ctrl/Cmd + Enter: Submit query
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        const buttons = document.querySelectorAll('button');
+        for (let btn of buttons) {
+            if (btn.textContent.includes('Send') || btn.textContent.includes('Execute')) {
+                btn.click();
+                break;
+            }
+        }
+    }
+    // Ctrl/Cmd + /: Show templates
+    if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        const templateBtn = document.querySelector('button[title="Show query templates"]');
+        if (templateBtn) templateBtn.click();
+    }
+});
+</script>
 """, unsafe_allow_html=True)
 
 
@@ -107,6 +212,11 @@ class OntoTrainChatUI:
             st.session_state.datasets = {}
         if 'current_viz_data' not in st.session_state:
             st.session_state.current_viz_data = None
+        # Quick Wins additions
+        if 'insight_search' not in st.session_state:
+            st.session_state.insight_search = ""
+        if 'insight_filter' not in st.session_state:
+            st.session_state.insight_filter = "All"
     
     def load_configuration(self):
         """Load default configuration."""
@@ -153,6 +263,18 @@ class OntoTrainChatUI:
     def render_sidebar(self):
         """Render the sidebar with configuration options."""
         st.sidebar.markdown("## 🚂 OntoTrain Configuration")
+        
+        # Quick Wins: Theme Toggle
+        st.sidebar.markdown("### 🎨 Appearance")
+        col1, col2 = st.sidebar.columns(2)
+        with col1:
+            if st.button("☀️ Light", use_container_width=True, disabled=st.session_state.theme == 'light'):
+                st.session_state.theme = 'light'
+                st.rerun()
+        with col2:
+            if st.button("🌙 Dark", use_container_width=True, disabled=st.session_state.theme == 'dark'):
+                st.session_state.theme = 'dark'
+                st.rerun()
         
         # Dataset selection
         st.sidebar.markdown("### 📊 Dataset")
@@ -204,13 +326,27 @@ class OntoTrainChatUI:
         if st.sidebar.button("📝 Manage Templates", use_container_width=True):
             self.show_query_templates()
         
-        # Insights section
+        # Insights section with Quick Wins: Search & Filter
         st.sidebar.markdown("### 💡 Agent Insights")
         if st.session_state.memory:
             insights = st.session_state.memory.get_all_insights()
             st.sidebar.metric("Total Insights", len(insights))
             
-            if st.sidebar.button("📋 View All Insights", use_container_width=True):
+            # Quick Wins: Search insights
+            search_term = st.sidebar.text_input("🔍 Search Insights", 
+                                                value=st.session_state.insight_search,
+                                                key="insight_search_input",
+                                                placeholder="Search keywords...")
+            st.session_state.insight_search = search_term
+            
+            # Quick Wins: Filter insights
+            filter_options = ["All", "Statistics", "Patterns", "Validation", "Hierarchies", "Clusters"]
+            filter_type = st.sidebar.selectbox("🎯 Filter by Type", 
+                                              options=filter_options,
+                                              index=filter_options.index(st.session_state.insight_filter) if st.session_state.insight_filter in filter_options else 0)
+            st.session_state.insight_filter = filter_type
+            
+            if st.sidebar.button("📋 View Filtered Insights", use_container_width=True):
                 self.show_insights_modal()
         
         # Graph Visualization
@@ -218,7 +354,7 @@ class OntoTrainChatUI:
         if st.sidebar.button("🎨 Show Graph Viz", use_container_width=True):
             self.show_graph_visualization()
         
-        # Export options
+        # Export options - Quick Wins: PDF Export
         st.sidebar.markdown("### 📥 Export")
         if st.sidebar.button("💾 Export to JSON-LD", use_container_width=True):
             self.export_data("json-ld")
@@ -226,6 +362,9 @@ class OntoTrainChatUI:
             self.export_data("nt")
         if st.sidebar.button("📄 Export Chat Transcript", use_container_width=True):
             self.export_chat_transcript()
+        # Quick Wins: PDF Report Export
+        if st.sidebar.button("📕 Export Report to PDF", use_container_width=True):
+            self.export_report_to_pdf()
         
         # Real-time Agent Execution
         st.sidebar.markdown("### 🤖 Agent Control")
@@ -266,14 +405,28 @@ class OntoTrainChatUI:
             st.error(f"❌ Error loading dataset: {e}")
     
     def show_insights_modal(self):
-        """Display all agent insights in an expandable section."""
+        """Display all agent insights in an expandable section with search and filter."""
         if st.session_state.memory:
             insights = st.session_state.memory.get_all_insights()
             
-            for idx, insight in enumerate(insights, 1):
-                with st.expander(f"Insight {idx}: {insight.get('insight', 'N/A')[:50]}..."):
+            # Quick Wins: Apply search and filter
+            filtered_insights = self.filter_insights(
+                insights,
+                st.session_state.insight_search,
+                st.session_state.insight_filter
+            )
+            
+            if not filtered_insights:
+                st.warning("No insights match the current search/filter criteria.")
+                return
+            
+            st.info(f"Showing {len(filtered_insights)} of {len(insights)} insights")
+            
+            for idx, insight in enumerate(filtered_insights, 1):
+                insight_preview = str(insight.get('insight', 'N/A'))[:50]
+                with st.expander(f"Insight {idx}: {insight_preview}..."):
                     st.markdown(f"**Insight:** {insight.get('insight', 'N/A')}")
-                    st.markdown(f"**Confidence:** {insight.get('confidence', 0):.2f}")
+                    st.markdown(f"**Source:** {insight.get('source', 'N/A')}")
                     st.markdown(f"**Iteration:** {insight.get('iteration', 'N/A')}")
                     st.markdown(f"**Timestamp:** {insight.get('timestamp', 'N/A')}")
     
@@ -293,6 +446,14 @@ class OntoTrainChatUI:
     def render_chat_interface(self):
         """Render the main chat interface."""
         st.markdown("<div class='main-header'>🚂 OntoTrain - RDF Knowledge Graph Explorer</div>", unsafe_allow_html=True)
+        
+        # Quick Wins: Keyboard shortcuts hint
+        with st.expander("⌨️ Keyboard Shortcuts"):
+            st.markdown("""
+            - **Ctrl/Cmd + K**: Focus query input
+            - **Ctrl/Cmd + Enter**: Submit query
+            - **Ctrl/Cmd + /**: Show templates
+            """)
         
         # Display chat messages
         for message in st.session_state.messages:
@@ -816,6 +977,120 @@ Answer:"""
         
         except Exception as e:
             st.error(f"Export error: {e}")
+    
+    def export_report_to_pdf(self):
+        """Export agent report to PDF format."""
+        if not PDF_AVAILABLE:
+            st.error("PDF export requires reportlab. Install with: pip install reportlab")
+            return
+        
+        if not st.session_state.memory:
+            st.warning("No insights to export. Run the agent first.")
+            return
+        
+        try:
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            story = []
+            styles = getSampleStyleSheet()
+            
+            # Title
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                textColor=colors.HexColor('#1f77b4'),
+                spaceAfter=30,
+                alignment=1  # Center
+            )
+            story.append(Paragraph("OntoTrain - Agent Report", title_style))
+            story.append(Spacer(1, 0.2 * inch))
+            
+            # Metadata
+            story.append(Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+            story.append(Paragraph(f"<b>Dataset:</b> {st.session_state.current_dataset or 'N/A'}", styles['Normal']))
+            story.append(Spacer(1, 0.3 * inch))
+            
+            # Statistics
+            if st.session_state.rdf_tools:
+                stats = st.session_state.rdf_tools.get_statistics()
+                story.append(Paragraph("<b>Dataset Statistics:</b>", styles['Heading2']))
+                data = [
+                    ['Metric', 'Value'],
+                    ['Total Triples', f"{stats.get('total_triples', 0):,}"],
+                    ['Total Classes', str(stats.get('total_classes', 0))],
+                    ['Total Properties', str(stats.get('total_properties', 0))]
+                ]
+                t = Table(data)
+                t.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 14),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)
+                ]))
+                story.append(t)
+                story.append(Spacer(1, 0.3 * inch))
+            
+            # Insights
+            insights = st.session_state.memory.get_all_insights()
+            if insights:
+                story.append(Paragraph("<b>Agent Insights:</b>", styles['Heading2']))
+                story.append(Spacer(1, 0.1 * inch))
+                
+                for i, insight_data in enumerate(insights, 1):
+                    insight_text = insight_data.get('insight', str(insight_data))
+                    source = insight_data.get('source', 'Unknown')
+                    
+                    story.append(Paragraph(f"<b>Insight #{i}</b>", styles['Heading3']))
+                    story.append(Paragraph(f"<i>Source: {source}</i>", styles['Normal']))
+                    story.append(Paragraph(insight_text[:500], styles['Normal']))  # Limit length
+                    story.append(Spacer(1, 0.2 * inch))
+            
+            # Build PDF
+            doc.build(story)
+            buffer.seek(0)
+            
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            st.success("✅ PDF report generated successfully!")
+            st.download_button(
+                label="📥 Download PDF Report",
+                data=buffer,
+                file_name=f"ontotrain_report_{timestamp}.pdf",
+                mime="application/pdf"
+            )
+        
+        except Exception as e:
+            st.error(f"PDF export error: {e}")
+    
+    def filter_insights(self, insights: List[Dict], search_term: str = "", filter_type: str = "All") -> List[Dict]:
+        """Filter insights based on search term and filter type."""
+        if not insights:
+            return []
+        
+        filtered = insights
+        
+        # Apply search filter
+        if search_term:
+            search_lower = search_term.lower()
+            filtered = [
+                insight for insight in filtered
+                if search_lower in str(insight.get('insight', '')).lower() or
+                   search_lower in str(insight.get('source', '')).lower()
+            ]
+        
+        # Apply type filter (can be extended based on insight metadata)
+        if filter_type != "All":
+            # Example: filter by source or other criteria
+            filtered = [
+                insight for insight in filtered
+                if filter_type.lower() in str(insight.get('source', '')).lower()
+            ]
+        
+        return filtered
     
     def run_agent_realtime(self):
         """Run the autonomous agent in real-time within the chat."""
