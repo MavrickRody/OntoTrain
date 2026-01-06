@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RDF Graph Visualization</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #333; }
+        .stats { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .node { background: #e3f2fd; padding: 10px; margin: 5px; border-radius: 3px; }
+        .edge { background: #fff3e0; padding: 5px; margin: 3px; font-size: 12px; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>RDF Graph Visualization Report</h1>
+    
+    <div class="stats">
+        <h2>Graph Statistics</h2>
+        <p>Total Nodes: 47</p>
+        <p>Total Edges: 18</p>
+    </div>
+    
+    <div class="stats">
+        <h2>Top Classes by Instance Count</h2>
+        <ul>
+        <li>LinearElementCoordinate: 1684</li><li>HorizontalSegment: 1636</li><li>TopologicalCoordinate: 1552</li><li>HorizontalTransition: 1191</li><li>InfrastructureElement: 786</li><li>BalisePacket: 678</li><li>Packet: 678</li><li>ETCSPacket_0: 478</li><li>Balise: 478</li><li>HorizontalArc: 386</li>
+        </ul>
+    </div>
+    
+    <div class="stats">
+        <h2>Top Predicates by Usage</h2>
+        <ul>
+        <li>type: 12168</li><li>index: 3320</li><li>x: 1732</li><li>y: 1732</li><li>accY: 1732</li><li>accZ: 1732</li><li>z: 1732</li><li>accX: 1732</li><li>coordinates: 1684</li><li>pos: 1684</li>
+        </ul>
+    </div>
+    
+    <div class="stats">
+        <h2>Sample Nodes (limited to 20)</h2>
+        <div class="node">E0011__349</div><div class="node">HorizontalTransition</div><div class="node">E0047</div><div class="node">642995f5-0c41-4aef-8458-5dcb28b90e0d__pktC__1</div><div class="node">E0014__6</div><div class="node">E0040__78</div><div class="node">E0047__149</div><div class="node">70b424c6-e573-450c-a55b-5c3291589420</div><div class="node">E0007__15</div><div class="node">E0034</div><div class="node">a477d168-ad3e-44b9-a223-879087655443</div><div class="node">e00b5c45-4b76-4611-9f78-f1eecabc97d4</div><div class="node">E0006__34</div><div class="node">3354a419-f181-4f42-acd3-6b3f6ed4857f__pktC__1</div><div class="node">3354a419-f181-4f42-acd3-6b3f6ed4857f__packet_0__1</div><div class="node">E0047__1650421</div><div class="node">%28E0051%29%20%2A%20%28E0019%29</div><div class="node">49e77152-1965-4391-aa9a-fd0ebf40afb8__pkt__1</div><div class="node">fb61c3b3-9b22-4afd-8941-9ce4f459122c</div><div class="node">E0007__15</div>
+    </div>
+    
+    <div class="stats">
+        <h2>Sample Relationships (limited to 20)</h2>
+        <div class="edge">http://data.europa.eu/949/HorizontalTransition/E0039__3 --[http://www.w3.org/1999/02/22-rdf-syntax-ns#type]--> http://data.europa.eu/949/HorizontalTransition</div><div class="edge">http://data.europa.eu/949/TopologicalCoordinate/a477d168-ad3e-44b9-a223-879087655443 --[http://data.europa.eu/949/onLinearElement]--> http://data.europa.eu/949/linearElement/E0011</div><div class="edge">http://data.europa.eu/949/topoCoord/1662918552__start__1 --[http://data.europa.eu/949/onLinearElement]--> http://data.europa.eu/949/linearElement/E0047</div><div class="edge">http://data.europa.eu/949/LinearElementGeometry/E0011 --[http://data.europa.eu/949/horizontalAlignments]--> http://data.europa.eu/949/HorizontalSegment/E0011__349</div><div class="edge">http://data.europa.eu/949/balisePacket/49e77152-1965-4391-aa9a-fd0ebf40afb8__pkt__1 --[http://data.europa.eu/949/packet]--> http://data.europa.eu/949/packet/49e77152-1965-4391-aa9a-fd0ebf40afb8__pktC__1</div><div class="edge">http://data.europa.eu/949/packet/3354a419-f181-4f42-acd3-6b3f6ed4857f__pktC__1 --[http://data.europa.eu/949/packet_0]--> http://data.europa.eu/949/packet_0/3354a419-f181-4f42-acd3-6b3f6ed4857f__packet_0__1</div><div class="edge">http://data.europa.eu/949/topoCoord/76784745-83fa-4c53-b1bf-5066cb6ed7c8__end__1 --[http://www.w3.org/1999/02/22-rdf-syntax-ns#type]--> http://data.europa.eu/949/TopologicalCoordinate</div><div class="edge">http://data.europa.eu/949/TvpSection/fb61c3b3-9b22-4afd-8941-9ce4f459122c --[http://data.europa.eu/949/trainDetectors]--> http://data.europa.eu/949/trainDetector/70b424c6-e573-450c-a55b-5c3291589420</div><div class="edge">http://data.europa.eu/949/balisePacket/642995f5-0c41-4aef-8458-5dcb28b90e0d__pkt__1 --[http://data.europa.eu/949/packet]--> http://data.europa.eu/949/packet/642995f5-0c41-4aef-8458-5dcb28b90e0d__pktC__1</div><div class="edge">http://data.europa.eu/949/engArea/cc895b50-d90e-4a6c-8c9b-0c85b8253a13 --[http://data.europa.eu/949/baliseGroups]--> http://data.europa.eu/949/baliseGroup/ea656e95-a5a7-4791-9823-edb6cf6dd662</div><div class="edge">http://data.europa.eu/949/functionalArea/cc895b50-d90e-4a6c-8c9b-0c85b8253a13 --[http://data.europa.eu/949/baliseGroups]--> http://data.europa.eu/949/baliseGroup/f21b64d4-9313-431d-bf61-79b1a69b1798</div><div class="edge">http://data.europa.eu/949/LinearElementProjection/E0006 --[http://data.europa.eu/949/coordinates]--> http://data.europa.eu/949/LinearElementCoordinate/E0006__2848079</div><div class="edge">http://data.europa.eu/949/TvpSection/d36e74a1-97f3-4245-a67c-6203ae6b4af2 --[http://data.europa.eu/949/linkedArea]--> http://data.europa.eu/949/netAreaReference/d36e74a1-97f3-4245-a67c-6203ae6b4af2</div><div class="edge">http://data.europa.eu/949/HorizontalSegment/E0014__6 --[http://data.europa.eu/949/horizontalSegmentTransition]--> http://data.europa.eu/949/HorizontalTransition/E0014__6</div><div class="edge">http://data.europa.eu/949/HorizontalSegment/E0007__15 --[http://data.europa.eu/949/horizontalSegmentTransition]--> http://data.europa.eu/949/HorizontalTransition/E0007__15</div><div class="edge">http://data.europa.eu/949/LinearElementCoordinate/E0006__4317354 --[http://www.w3.org/1999/02/22-rdf-syntax-ns#type]--> http://data.europa.eu/949/LinearElementCoordinate</div><div class="edge">http://data.europa.eu/949/HorizontalTransition/E0011__135 --[http://www.w3.org/1999/02/22-rdf-syntax-ns#type]--> http://data.europa.eu/949/HorizontalTransition</div><div class="edge">http://data.europa.eu/949/TopologicalCoordinate/3438281269%3AE0034 --[http://data.europa.eu/949/onLinearElement]--> http://data.europa.eu/949/linearElement/E0034</div>
+    </div>
+    
+    <p><em>For interactive graph visualization, consider using tools like Cytoscape.js or D3.js with the exported JSON data.</em></p>
+</body>
+</html>

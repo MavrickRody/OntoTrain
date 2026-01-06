@@ -1,0 +1,582 @@
+{
+  "graph": {
+    "nodes": [
+      {
+        "id": "http://data.europa.eu/949/HorizontalSegment/E0011__349",
+        "label": "E0011__349"
+      },
+      {
+        "id": "http://data.europa.eu/949/balise/a1df2aca-7131-417a-b7a5-be8e38767d86",
+        "label": "a1df2aca-7131-417a-b7a5-be8e38767d86"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition",
+        "label": "HorizontalTransition"
+      },
+      {
+        "id": "http://data.europa.eu/949/balisePacket/260dcc2b-8171-49ab-928e-f4715a4f1d05__pkt__1",
+        "label": "260dcc2b-8171-49ab-928e-f4715a4f1d05__pkt__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/linearElement/E0047",
+        "label": "E0047"
+      },
+      {
+        "id": "http://data.europa.eu/949/TopologicalCoordinate/3f2e0c7f-4742-4451-a8c5-239ec68d0d4d",
+        "label": "3f2e0c7f-4742-4451-a8c5-239ec68d0d4d"
+      },
+      {
+        "id": "http://data.europa.eu/949/packet/45f36e75-f484-4be5-b013-d6823ca364d4__pktC__1",
+        "label": "45f36e75-f484-4be5-b013-d6823ca364d4__pktC__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/packet/642995f5-0c41-4aef-8458-5dcb28b90e0d__pktC__1",
+        "label": "642995f5-0c41-4aef-8458-5dcb28b90e0d__pktC__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/balise/21418b9e-2aab-4126-9ca5-dfa70b7c8dfe",
+        "label": "21418b9e-2aab-4126-9ca5-dfa70b7c8dfe"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalSegment/E0014__6",
+        "label": "E0014__6"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0040__78",
+        "label": "E0040__78"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalArc/E0047__149",
+        "label": "E0047__149"
+      },
+      {
+        "id": "http://data.europa.eu/949/trainDetector/70b424c6-e573-450c-a55b-5c3291589420",
+        "label": "70b424c6-e573-450c-a55b-5c3291589420"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalSegment/E0007__15",
+        "label": "E0007__15"
+      },
+      {
+        "id": "http://data.europa.eu/949/linearElement/E0034",
+        "label": "E0034"
+      },
+      {
+        "id": "http://data.europa.eu/949/TopologicalCoordinate/a477d168-ad3e-44b9-a223-879087655443",
+        "label": "a477d168-ad3e-44b9-a223-879087655443"
+      },
+      {
+        "id": "http://data.europa.eu/949/balise/e00b5c45-4b76-4611-9f78-f1eecabc97d4",
+        "label": "e00b5c45-4b76-4611-9f78-f1eecabc97d4"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0006__34",
+        "label": "E0006__34"
+      },
+      {
+        "id": "http://data.europa.eu/949/packet/3354a419-f181-4f42-acd3-6b3f6ed4857f__pktC__1",
+        "label": "3354a419-f181-4f42-acd3-6b3f6ed4857f__pktC__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/packet_0/3354a419-f181-4f42-acd3-6b3f6ed4857f__packet_0__1",
+        "label": "3354a419-f181-4f42-acd3-6b3f6ed4857f__packet_0__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0047__1650421",
+        "label": "E0047__1650421"
+      },
+      {
+        "id": "http://data.europa.eu/949/netRelation/%28E0051%29%20%2A%20%28E0019%29",
+        "label": "%28E0051%29%20%2A%20%28E0019%29"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalArc/E0040__93",
+        "label": "E0040__93"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalArc/E0040__121",
+        "label": "E0040__121"
+      },
+      {
+        "id": "http://data.europa.eu/949/balisePacket/49e77152-1965-4391-aa9a-fd0ebf40afb8__pkt__1",
+        "label": "49e77152-1965-4391-aa9a-fd0ebf40afb8__pkt__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/TvpSection/fb61c3b3-9b22-4afd-8941-9ce4f459122c",
+        "label": "fb61c3b3-9b22-4afd-8941-9ce4f459122c"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0006__1998757",
+        "label": "E0006__1998757"
+      },
+      {
+        "id": "http://data.europa.eu/949/TopologicalCoordinate/418c4bd2-0ffe-4383-8660-3219246fb43a",
+        "label": "418c4bd2-0ffe-4383-8660-3219246fb43a"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0047__0",
+        "label": "E0047__0"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0007__15",
+        "label": "E0007__15"
+      },
+      {
+        "id": "http://data.europa.eu/949/engArea/cc895b50-d90e-4a6c-8c9b-0c85b8253a13",
+        "label": "cc895b50-d90e-4a6c-8c9b-0c85b8253a13"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0006__2056047",
+        "label": "E0006__2056047"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalArc",
+        "label": "HorizontalArc"
+      },
+      {
+        "id": "http://data.europa.eu/949/TvpSection/76598032-7217-42a4-bc4a-eeef2a53b800",
+        "label": "76598032-7217-42a4-bc4a-eeef2a53b800"
+      },
+      {
+        "id": "http://data.europa.eu/949/packet_0/45f36e75-f484-4be5-b013-d6823ca364d4__packet_0__1",
+        "label": "45f36e75-f484-4be5-b013-d6823ca364d4__packet_0__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementGeometry/E0011",
+        "label": "E0011"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0004__773058",
+        "label": "E0004__773058"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0039__3",
+        "label": "E0039__3"
+      },
+      {
+        "id": "http://data.europa.eu/949/topoCoord/76784745-83fa-4c53-b1bf-5066cb6ed7c8__end__1",
+        "label": "76784745-83fa-4c53-b1bf-5066cb6ed7c8__end__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementProjection/E0006",
+        "label": "E0006"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0011__5668369",
+        "label": "E0011__5668369"
+      },
+      {
+        "id": "http://data.europa.eu/949/balisePacket/642995f5-0c41-4aef-8458-5dcb28b90e0d__pkt__1",
+        "label": "642995f5-0c41-4aef-8458-5dcb28b90e0d__pkt__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/functionalArea/cc895b50-d90e-4a6c-8c9b-0c85b8253a13",
+        "label": "cc895b50-d90e-4a6c-8c9b-0c85b8253a13"
+      },
+      {
+        "id": "http://data.europa.eu/949/baliseGroup/ea656e95-a5a7-4791-9823-edb6cf6dd662",
+        "label": "ea656e95-a5a7-4791-9823-edb6cf6dd662"
+      },
+      {
+        "id": "http://data.europa.eu/949/baliseGroup/f21b64d4-9313-431d-bf61-79b1a69b1798",
+        "label": "f21b64d4-9313-431d-bf61-79b1a69b1798"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0011__135",
+        "label": "E0011__135"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalSegment/E0006__369",
+        "label": "E0006__369"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0006__483",
+        "label": "E0006__483"
+      },
+      {
+        "id": "http://data.europa.eu/949/linearElement/E0011",
+        "label": "E0011"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0026__911615",
+        "label": "E0026__911615"
+      },
+      {
+        "id": "http://data.europa.eu/949/packet/260dcc2b-8171-49ab-928e-f4715a4f1d05__pktC__1",
+        "label": "260dcc2b-8171-49ab-928e-f4715a4f1d05__pktC__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/TvpSection/d36e74a1-97f3-4245-a67c-6203ae6b4af2",
+        "label": "d36e74a1-97f3-4245-a67c-6203ae6b4af2"
+      },
+      {
+        "id": "http://data.europa.eu/949/netAreaReference/d36e74a1-97f3-4245-a67c-6203ae6b4af2",
+        "label": "d36e74a1-97f3-4245-a67c-6203ae6b4af2"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0011__399",
+        "label": "E0011__399"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0006__139",
+        "label": "E0006__139"
+      },
+      {
+        "id": "http://data.europa.eu/949/packet/49e77152-1965-4391-aa9a-fd0ebf40afb8__pktC__1",
+        "label": "49e77152-1965-4391-aa9a-fd0ebf40afb8__pktC__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/TopologicalCoordinate/bb13b512-f198-4f30-b1f2-c3de26dab585",
+        "label": "bb13b512-f198-4f30-b1f2-c3de26dab585"
+      },
+      {
+        "id": "http://data.europa.eu/949/baliseGroup/fd8e679f-53e4-409e-890b-d064efba6844",
+        "label": "fd8e679f-53e4-409e-890b-d064efba6844"
+      },
+      {
+        "id": "http://data.europa.eu/949/TvpSection",
+        "label": "TvpSection"
+      },
+      {
+        "id": "http://data.europa.eu/949/TopologicalCoordinate/3438281269%3AE0034",
+        "label": "3438281269%3AE0034"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0006__4317354",
+        "label": "E0006__4317354"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0006__5166198",
+        "label": "E0006__5166198"
+      },
+      {
+        "id": "http://data.europa.eu/949/topoCoord/1662918552__start__1",
+        "label": "1662918552__start__1"
+      },
+      {
+        "id": "http://data.europa.eu/949/TopologicalCoordinate",
+        "label": "TopologicalCoordinate"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0014__6",
+        "label": "E0014__6"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0006__2848079",
+        "label": "E0006__2848079"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalArc/E0011__9",
+        "label": "E0011__9"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate",
+        "label": "LinearElementCoordinate"
+      },
+      {
+        "id": "http://data.europa.eu/949/HorizontalTransition/E0006__374",
+        "label": "E0006__374"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0006__2113169",
+        "label": "E0006__2113169"
+      },
+      {
+        "id": "http://data.europa.eu/949/LinearElementCoordinate/E0029__92077",
+        "label": "E0029__92077"
+      }
+    ],
+    "edges": [
+      {
+        "source": "http://data.europa.eu/949/HorizontalTransition/E0039__3",
+        "target": "http://data.europa.eu/949/HorizontalTransition",
+        "label": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "source": "http://data.europa.eu/949/TopologicalCoordinate/a477d168-ad3e-44b9-a223-879087655443",
+        "target": "http://data.europa.eu/949/linearElement/E0011",
+        "label": "http://data.europa.eu/949/onLinearElement"
+      },
+      {
+        "source": "http://data.europa.eu/949/topoCoord/1662918552__start__1",
+        "target": "http://data.europa.eu/949/linearElement/E0047",
+        "label": "http://data.europa.eu/949/onLinearElement"
+      },
+      {
+        "source": "http://data.europa.eu/949/LinearElementGeometry/E0011",
+        "target": "http://data.europa.eu/949/HorizontalSegment/E0011__349",
+        "label": "http://data.europa.eu/949/horizontalAlignments"
+      },
+      {
+        "source": "http://data.europa.eu/949/balisePacket/49e77152-1965-4391-aa9a-fd0ebf40afb8__pkt__1",
+        "target": "http://data.europa.eu/949/packet/49e77152-1965-4391-aa9a-fd0ebf40afb8__pktC__1",
+        "label": "http://data.europa.eu/949/packet"
+      },
+      {
+        "source": "http://data.europa.eu/949/packet/3354a419-f181-4f42-acd3-6b3f6ed4857f__pktC__1",
+        "target": "http://data.europa.eu/949/packet_0/3354a419-f181-4f42-acd3-6b3f6ed4857f__packet_0__1",
+        "label": "http://data.europa.eu/949/packet_0"
+      },
+      {
+        "source": "http://data.europa.eu/949/topoCoord/76784745-83fa-4c53-b1bf-5066cb6ed7c8__end__1",
+        "target": "http://data.europa.eu/949/TopologicalCoordinate",
+        "label": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "source": "http://data.europa.eu/949/TvpSection/fb61c3b3-9b22-4afd-8941-9ce4f459122c",
+        "target": "http://data.europa.eu/949/trainDetector/70b424c6-e573-450c-a55b-5c3291589420",
+        "label": "http://data.europa.eu/949/trainDetectors"
+      },
+      {
+        "source": "http://data.europa.eu/949/balisePacket/642995f5-0c41-4aef-8458-5dcb28b90e0d__pkt__1",
+        "target": "http://data.europa.eu/949/packet/642995f5-0c41-4aef-8458-5dcb28b90e0d__pktC__1",
+        "label": "http://data.europa.eu/949/packet"
+      },
+      {
+        "source": "http://data.europa.eu/949/engArea/cc895b50-d90e-4a6c-8c9b-0c85b8253a13",
+        "target": "http://data.europa.eu/949/baliseGroup/ea656e95-a5a7-4791-9823-edb6cf6dd662",
+        "label": "http://data.europa.eu/949/baliseGroups"
+      },
+      {
+        "source": "http://data.europa.eu/949/functionalArea/cc895b50-d90e-4a6c-8c9b-0c85b8253a13",
+        "target": "http://data.europa.eu/949/baliseGroup/f21b64d4-9313-431d-bf61-79b1a69b1798",
+        "label": "http://data.europa.eu/949/baliseGroups"
+      },
+      {
+        "source": "http://data.europa.eu/949/LinearElementProjection/E0006",
+        "target": "http://data.europa.eu/949/LinearElementCoordinate/E0006__2848079",
+        "label": "http://data.europa.eu/949/coordinates"
+      },
+      {
+        "source": "http://data.europa.eu/949/TvpSection/d36e74a1-97f3-4245-a67c-6203ae6b4af2",
+        "target": "http://data.europa.eu/949/netAreaReference/d36e74a1-97f3-4245-a67c-6203ae6b4af2",
+        "label": "http://data.europa.eu/949/linkedArea"
+      },
+      {
+        "source": "http://data.europa.eu/949/HorizontalSegment/E0014__6",
+        "target": "http://data.europa.eu/949/HorizontalTransition/E0014__6",
+        "label": "http://data.europa.eu/949/horizontalSegmentTransition"
+      },
+      {
+        "source": "http://data.europa.eu/949/HorizontalSegment/E0007__15",
+        "target": "http://data.europa.eu/949/HorizontalTransition/E0007__15",
+        "label": "http://data.europa.eu/949/horizontalSegmentTransition"
+      },
+      {
+        "source": "http://data.europa.eu/949/LinearElementCoordinate/E0006__4317354",
+        "target": "http://data.europa.eu/949/LinearElementCoordinate",
+        "label": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "source": "http://data.europa.eu/949/HorizontalTransition/E0011__135",
+        "target": "http://data.europa.eu/949/HorizontalTransition",
+        "label": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "source": "http://data.europa.eu/949/TopologicalCoordinate/3438281269%3AE0034",
+        "target": "http://data.europa.eu/949/linearElement/E0034",
+        "label": "http://data.europa.eu/949/onLinearElement"
+      },
+      {
+        "source": "http://data.europa.eu/949/LinearElementCoordinate/E0011__5668369",
+        "target": "http://data.europa.eu/949/LinearElementCoordinate",
+        "label": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "source": "http://data.europa.eu/949/TopologicalCoordinate/418c4bd2-0ffe-4383-8660-3219246fb43a",
+        "target": "http://data.europa.eu/949/linearElement/E0047",
+        "label": "http://data.europa.eu/949/onLinearElement"
+      },
+      {
+        "source": "http://data.europa.eu/949/TvpSection/76598032-7217-42a4-bc4a-eeef2a53b800",
+        "target": "http://data.europa.eu/949/TvpSection",
+        "label": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "source": "http://data.europa.eu/949/balisePacket/260dcc2b-8171-49ab-928e-f4715a4f1d05__pkt__1",
+        "target": "http://data.europa.eu/949/packet/260dcc2b-8171-49ab-928e-f4715a4f1d05__pktC__1",
+        "label": "http://data.europa.eu/949/packet"
+      },
+      {
+        "source": "http://data.europa.eu/949/HorizontalArc/E0040__121",
+        "target": "http://data.europa.eu/949/HorizontalArc",
+        "label": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      },
+      {
+        "source": "http://data.europa.eu/949/packet/45f36e75-f484-4be5-b013-d6823ca364d4__pktC__1",
+        "target": "http://data.europa.eu/949/packet_0/45f36e75-f484-4be5-b013-d6823ca364d4__packet_0__1",
+        "label": "http://data.europa.eu/949/packet_0"
+      }
+    ]
+  },
+  "class_hierarchy": {
+    "name": "Classes",
+    "children": []
+  },
+  "statistics": {
+    "class_distribution": [
+      {
+        "class": "LinearElementCoordinate",
+        "count": 1684
+      },
+      {
+        "class": "HorizontalSegment",
+        "count": 1636
+      },
+      {
+        "class": "TopologicalCoordinate",
+        "count": 1552
+      },
+      {
+        "class": "HorizontalTransition",
+        "count": 1191
+      },
+      {
+        "class": "InfrastructureElement",
+        "count": 786
+      },
+      {
+        "class": "BalisePacket",
+        "count": 678
+      },
+      {
+        "class": "Packet",
+        "count": 678
+      },
+      {
+        "class": "ETCSPacket_0",
+        "count": 478
+      },
+      {
+        "class": "Balise",
+        "count": 478
+      },
+      {
+        "class": "HorizontalArc",
+        "count": 386
+      },
+      {
+        "class": "NetLinearReference",
+        "count": 253
+      },
+      {
+        "class": "List",
+        "count": 243
+      },
+      {
+        "class": "NetPointReference",
+        "count": 242
+      },
+      {
+        "class": "BaliseGroup",
+        "count": 239
+      },
+      {
+        "class": "NetAreaReference",
+        "count": 216
+      },
+      {
+        "class": "ETCSMarker",
+        "count": 211
+      },
+      {
+        "class": "ETCSPacket_137",
+        "count": 198
+      },
+      {
+        "class": "TrainDetector",
+        "count": 180
+      },
+      {
+        "class": "TvpSection",
+        "count": 157
+      },
+      {
+        "class": "DangerPoint",
+        "count": 89
+      }
+    ],
+    "predicate_usage": [
+      {
+        "predicate": "type",
+        "count": 12168
+      },
+      {
+        "predicate": "index",
+        "count": 3320
+      },
+      {
+        "predicate": "x",
+        "count": 1732
+      },
+      {
+        "predicate": "y",
+        "count": 1732
+      },
+      {
+        "predicate": "accY",
+        "count": 1732
+      },
+      {
+        "predicate": "accZ",
+        "count": 1732
+      },
+      {
+        "predicate": "z",
+        "count": 1732
+      },
+      {
+        "predicate": "accX",
+        "count": 1732
+      },
+      {
+        "predicate": "coordinates",
+        "count": 1684
+      },
+      {
+        "predicate": "pos",
+        "count": 1684
+      },
+      {
+        "predicate": "accPos",
+        "count": 1684
+      },
+      {
+        "predicate": "elementGeometryPos",
+        "count": 1636
+      },
+      {
+        "predicate": "horizontalAlignments",
+        "count": 1636
+      },
+      {
+        "predicate": "azimuth",
+        "count": 1636
+      },
+      {
+        "predicate": "radius",
+        "count": 1577
+      },
+      {
+        "predicate": "onLinearElement",
+        "count": 1552
+      },
+      {
+        "predicate": "offsetFromOrigin",
+        "count": 1552
+      },
+      {
+        "predicate": "horizontalSegmentTransition",
+        "count": 1191
+      },
+      {
+        "predicate": "transitionType",
+        "count": 1191
+      },
+      {
+        "predicate": "balises",
+        "count": 956
+      }
+    ]
+  }
+}
