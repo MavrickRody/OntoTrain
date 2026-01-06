@@ -1,0 +1,22 @@
+# Core RDF and SPARQL processing
+rdflib==7.0.0
+
+# Local LLM inference via Ollama
+ollama==0.4.4
+
+# Vector storage and similarity search
+faiss-cpu==1.8.0
+numpy==1.24.3
+
+# Text processing and embeddings
+sentence-transformers==2.2.2
+
+# Utilities
+python-dotenv==1.0.0
+
+# Web UI and Visualization
+streamlit==1.29.0
+plotly==5.18.0
+
+# PDF Export
+reportlab==4.0.7
