@@ -817,7 +817,7 @@ Answer:"""
         st.subheader("🤖 Running Autonomous Agent")
         
         try:
-            from agent.agent import AutonomousRDFAgent
+            from agent.agent import AutonomousAgent
             
             # Create progress container
             progress_placeholder = st.empty()
@@ -826,10 +826,10 @@ Answer:"""
             
             # Initialize agent
             status_placeholder.info("Initializing autonomous agent...")
-            agent = AutonomousRDFAgent(
-                rdf_tools=st.session_state.rdf_tools,
-                llm=st.session_state.llm,
-                memory=st.session_state.memory,
+            agent = AutonomousAgent(
+                model_name=st.session_state.model_name,
+                dataset_path=st.session_state.dataset_path,
+                memory_file=st.session_state.memory_file,
                 max_iterations=3,  # Limited iterations for chat UI
                 verbose=False
             )
