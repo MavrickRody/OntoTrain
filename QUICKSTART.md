@@ -120,15 +120,23 @@ Insight: The graph contains a small knowledge base...
 
 ## Use Your Own Data
 
-Replace the sample dataset with your own RDF file:
+Replace the sample dataset with your own RDF file (supports multiple formats):
 
 ```bash
-# Copy your RDF file (must be Turtle format)
+# For Turtle format (.ttl)
 cp /path/to/your/ontology.ttl data/dataset.ttl
-
-# Run the agent
 python main.py
+
+# For RDF/XML format (.rdf or .xml)
+cp /path/to/your/ontology.rdf data/dataset.rdf
+python main.py --dataset data/dataset.rdf
+
+# For N-Triples (.nt) or N3 (.n3)
+cp /path/to/your/ontology.nt data/dataset.nt
+python main.py --dataset data/dataset.nt
 ```
+
+**Supported formats:** Turtle (.ttl), RDF/XML (.rdf, .xml), N-Triples (.nt), N3 (.n3)
 
 ## Troubleshooting
 

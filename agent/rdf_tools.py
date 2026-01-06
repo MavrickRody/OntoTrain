@@ -18,14 +18,16 @@ class RDFTools:
         Initialize RDF tools with a dataset.
         
         Args:
-            dataset_path: Path to the RDF dataset file (Turtle format)
+            dataset_path: Path to the RDF dataset file (supports .ttl, .rdf, .xml, .n3, .nt formats)
         """
         self.dataset_path = dataset_path
         self.graph = Graph()
         self.insights_namespace = Namespace("http://ontotrain.ai/insights/")
         
         try:
-            self.graph.parse(dataset_path, format='turtle')
+            # Auto-detect format based on file extension
+            # rdflib supports: turtle (.ttl), xml (.rdf, .xml), n3 (.n3), ntriples (.nt), etc.
+            self.graph.parse(dataset_path)
             print(f"Loaded RDF dataset from: {dataset_path}")
             print(f"Total triples: {len(self.graph)}")
         except FileNotFoundError:
@@ -238,7 +240,16 @@ class RDFTools:
             output_path: Path to save the graph (defaults to dataset_path)
         """
         path = output_path or self.dataset_path
-        self.graph.serialize(destination=path, format='turtle')
+        
+        # Auto-detect format based on file extension
+        # If the file extension is recognized by rdflib, it will use that format
+        # Otherwise, default to turtle
+        try:
+            self.graph.serialize(destination=path)
+        except Exception:
+            # Fallback to turtle format if auto-detection fails
+            self.graph.serialize(destination=path, format='turtle')
+        
         print(f"Graph saved to: {path}")
     
     def _make_safe_uri(self, text: str) -> str:

@@ -30,7 +30,7 @@ OntoTrain/
 │   ├── rdf_tools.py   # RDF and SPARQL tools
 │   └── memory.py      # Learning and memory layer
 ├── data/
-│   ├── dataset.ttl    # RDF dataset (Turtle format)
+│   ├── dataset.ttl    # RDF dataset (supports .ttl, .rdf, .xml, .n3, .nt)
 │   └── agent_memory.json  # Agent memory persistence
 ├── main.py            # Entry point
 ├── requirements.txt   # Dependencies
@@ -95,11 +95,20 @@ python main.py --create-sample-dataset
 
 **Option B**: Use your own RDF dataset
 
-Place your Turtle (`.ttl`) format RDF file in `data/dataset.ttl`
+The agent supports multiple RDF formats (auto-detected by file extension):
+- Turtle (`.ttl`)
+- RDF/XML (`.rdf`, `.xml`)
+- N-Triples (`.nt`)
+- N3 (`.n3`)
 
 Example:
 ```bash
+# For Turtle format
 cp /path/to/your/ontology.ttl data/dataset.ttl
+
+# For RDF/XML format
+cp /path/to/your/ontology.rdf data/dataset.rdf
+python main.py --dataset data/dataset.rdf
 ```
 
 ## Usage
@@ -147,7 +156,7 @@ python main.py --create-sample-dataset
 
 ```
 --model NAME         Name of Ollama model (default: mistral)
---dataset PATH        Path to RDF dataset (default: data/dataset.ttl)
+--dataset PATH        Path to RDF dataset - supports .ttl, .rdf, .xml, .n3, .nt (default: data/dataset.ttl)
 --memory PATH         Path to memory file (default: data/agent_memory.json)
 --iterations N        Max iterations (default: 10)
 --verbose            Enable verbose output
@@ -283,7 +292,7 @@ ollama pull mistral
 ### Dataset Issues
 
 **Problem**: `Error loading dataset`
-**Solution**: Ensure your RDF file is valid Turtle format. Validate at http://www.easyrdf.org/converter
+**Solution**: Ensure your RDF file is in a supported format (.ttl, .rdf, .xml, .n3, .nt). The format is auto-detected from the file extension. Validate at http://www.easyrdf.org/converter
 
 ### Performance Issues
 

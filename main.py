@@ -121,7 +121,7 @@ Pull a model: ollama pull mistral
         '--dataset',
         type=str,
         default='data/dataset.ttl',
-        help='Path to the RDF dataset file (default: data/dataset.ttl)'
+        help='Path to the RDF dataset file - supports .ttl, .rdf, .xml, .n3, .nt (default: data/dataset.ttl)'
     )
     
     parser.add_argument(
