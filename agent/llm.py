@@ -38,12 +38,17 @@ class LocalLLM:
         print(f"Connecting to Ollama with model: {model_name}")
         
         try:
-            models = ollama.list()
-            model_names = [m['name'] for m in models.get('models', [])]
+            models_response = ollama.list()
+            # Handle the response structure safely
+            if isinstance(models_response, dict) and 'models' in models_response:
+                model_names = [m.get('name', '') for m in models_response['models'] if isinstance(m, dict)]
+            else:
+                model_names = []
             
             if not any(model_name in name for name in model_names):
-                print(f"Warning: Model '{model_name}' not found in Ollama.")
-                print(f"Available models: {', '.join(model_names)}")
+                if model_names:
+                    print(f"Warning: Model '{model_name}' not found in Ollama.")
+                    print(f"Available models: {', '.join(model_names)}")
                 print(f"Attempting to pull model '{model_name}'...")
                 ollama.pull(model_name)
                 print(f"Model '{model_name}' pulled successfully!")

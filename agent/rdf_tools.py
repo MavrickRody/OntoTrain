@@ -27,9 +27,28 @@ class RDFTools:
         try:
             # Auto-detect format based on file extension
             # rdflib supports: turtle (.ttl), xml (.rdf, .xml), n3 (.n3), ntriples (.nt), etc.
-            self.graph.parse(dataset_path)
-            print(f"Loaded RDF dataset from: {dataset_path}")
-            print(f"Total triples: {len(self.graph)}")
+            try:
+                self.graph.parse(dataset_path)
+                print(f"Loaded RDF dataset from: {dataset_path}")
+                print(f"Total triples: {len(self.graph)}")
+            except Exception as first_error:
+                # If auto-detection fails, try explicit formats
+                print(f"Auto-detection failed, trying alternative formats...")
+                formats_to_try = ['xml', 'turtle', 'n3', 'nt']
+                
+                for fmt in formats_to_try:
+                    try:
+                        self.graph = Graph()  # Reset graph
+                        self.graph.parse(dataset_path, format=fmt)
+                        print(f"Successfully loaded dataset using format: {fmt}")
+                        print(f"Total triples: {len(self.graph)}")
+                        break
+                    except Exception:
+                        continue
+                else:
+                    # If all formats fail, raise the original error
+                    raise first_error
+                    
         except FileNotFoundError:
             print(f"Dataset not found at: {dataset_path}")
             print("Starting with empty graph.")

@@ -101,6 +101,8 @@ The agent supports multiple RDF formats (auto-detected by file extension):
 - N-Triples (`.nt`)
 - N3 (`.n3`)
 
+**Note**: If auto-detection fails, the agent automatically tries all supported formats as a fallback.
+
 Example:
 ```bash
 # For Turtle format
@@ -292,7 +294,14 @@ ollama pull mistral
 ### Dataset Issues
 
 **Problem**: `Error loading dataset`
-**Solution**: Ensure your RDF file is in a supported format (.ttl, .rdf, .xml, .n3, .nt). The format is auto-detected from the file extension. Validate at http://www.easyrdf.org/converter
+**Solution**: 
+- Ensure your RDF file is in a supported format (.ttl, .rdf, .xml, .n3, .nt)
+- The agent auto-detects format from file extension and tries fallback formats if needed
+- If the file extension doesn't match the content (e.g., RDF/XML file with .ttl extension), the agent will automatically try other formats
+- Validate your RDF file at http://www.easyrdf.org/converter
+
+**Problem**: `Warning: Could not verify Ollama model`
+**Solution**: Make sure Ollama service is running with `ollama serve` before starting the agent
 
 ### Performance Issues
 
